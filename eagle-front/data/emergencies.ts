@@ -1,0 +1,93 @@
+/**
+ * Emergency mock data
+ */
+
+import type { EmergencyPatient } from "@/types/emergencies";
+
+export const mockEmergencies: EmergencyPatient[] = [
+  {
+    id: 1,
+    name: "Tabi Aline",
+    age: 52,
+    gender: "F",
+    urgencyLevel: 5,
+    reason: "Douleurs thoraciques intenses",
+    symptoms: ["Douleur thoracique", "Essoufflement", "Sueurs froides", "Nausées"],
+    vitalSigns: {
+      bloodPressure: "180/110",
+      heartRate: 115,
+      temperature: 37.8,
+      oxygenSaturation: 92,
+    },
+    arrivalTime: "11:15",
+    waitTime: 45,
+    status: "critical",
+    room: "Salle 1",
+    nurse: "Inf. Mbarga",
+    triageNotes: "Suspicion d'infarctus, ECG réalisé, patient sous monitoring",
+  },
+  {
+    id: 2,
+    name: "Kamga Jean",
+    age: 45,
+    gender: "M",
+    urgencyLevel: 4,
+    reason: "Fièvre persistante",
+    symptoms: ["Fièvre 39°C", "Maux de tête", "Courbatures", "Fatigue"],
+    vitalSigns: {
+      bloodPressure: "145/90",
+      heartRate: 98,
+      temperature: 39.2,
+      oxygenSaturation: 97,
+    },
+    arrivalTime: "14:18",
+    waitTime: 12,
+    status: "urgent",
+    room: "Salle 2",
+    nurse: "Inf. Nkomo",
+    triageNotes: "Fièvre depuis 3 jours, test paludisme en cours",
+  },
+  {
+    id: 3,
+    name: "Owona Marc",
+    age: 38,
+    gender: "M",
+    urgencyLevel: 4,
+    reason: "Blessure profonde main droite",
+    symptoms: ["Saignement", "Douleur aiguë", "Perte de mobilité"],
+    vitalSigns: {
+      bloodPressure: "130/80",
+      heartRate: 85,
+      temperature: 37.1,
+      oxygenSaturation: 98,
+    },
+    arrivalTime: "15:30",
+    waitTime: 25,
+    status: "in_consultation",
+    assignedDoctor: "Dr. Nana Pierre",
+    room: "Salle 3",
+    nurse: "Inf. Fouda",
+    triageNotes: "Accident de travail, pansement compressif appliqué",
+  },
+  {
+    id: 4,
+    name: "Ngono Marie",
+    age: 29,
+    gender: "F",
+    urgencyLevel: 3,
+    reason: "Réaction allergique",
+    symptoms: ["Éruption cutanée", "Démangeaisons", "Œdème facial"],
+    vitalSigns: {
+      bloodPressure: "120/75",
+      heartRate: 88,
+      temperature: 37.4,
+      oxygenSaturation: 99,
+    },
+    arrivalTime: "16:10",
+    waitTime: 10,
+    status: "stable",
+    nurse: "Inf. Mbarga",
+    triageNotes: "Allergique aux arachides, antihistaminique administré",
+  },
+];
+
