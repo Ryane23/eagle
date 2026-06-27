@@ -1,0 +1,5718 @@
+{
+  "collection": {
+    "_": {
+      "postman_id": "system-health-monitoring-001"
+    },
+    "item": [
+      {
+        "id": "d1c19f44-7f97-43ec-b53c-484a9142abcd",
+        "name": "Setup",
+        "item": [
+          {
+            "id": "2976afcd-d68a-4eea-a45c-ef73db0372cf",
+            "name": "1. Login - Admin",
+            "request": {
+              "url": {
+                "path": [
+                  "auth",
+                  "login"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "method": "POST",
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"email\": \"admin@eagles.com\",\n  \"password\": \"Admin@123456\"\n}"
+              }
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "ac3b04a3-34d1-4164-b4be-e0e1f9bb37d4",
+                  "type": "text/javascript",
+                  "exec": [
+                    "if (pm.response.code === 200) {",
+                    "    const jsonData = pm.response.json();",
+                    "    pm.environment.set(\"adminToken\", jsonData.accessToken);",
+                    "}",
+                    "pm.test(\"Status code is 200\", function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "pm.test(\"Response has access token\", function () {",
+                    "    const jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property(\"accessToken\");",
+                    "});"
+                  ],
+                  "_lastExecutionId": "0d34b135-2712-4cba-a407-f41d31bbadbb"
+                }
+              }
+            ]
+          },
+          {
+            "id": "da0e82f9-9972-407b-8922-bbe6d5b9b4b7",
+            "name": "2. Login - Doctor (For Testing Access Control)",
+            "request": {
+              "url": {
+                "path": [
+                  "auth",
+                  "login"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "method": "POST",
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"email\": \"doctor.nana@eagles.com\",\n  \"password\": \"Doctor@123\"\n}"
+              }
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "35a18107-8fe0-43f8-a952-60964e571d27",
+                  "type": "text/javascript",
+                  "exec": [
+                    "if (pm.response.code === 200) {",
+                    "    const jsonData = pm.response.json();",
+                    "    pm.environment.set(\"doctorToken\", jsonData.accessToken);",
+                    "}",
+                    "pm.test(\"Status code is 200\", function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});"
+                  ],
+                  "_lastExecutionId": "347c9c38-554f-4f90-b195-0d66b2691c3a"
+                }
+              }
+            ]
+          }
+        ],
+        "event": []
+      },
+      {
+        "id": "ada2b6ad-1447-435e-8457-539a62de6b96",
+        "name": "Health Monitoring Tests",
+        "item": [
+          {
+            "id": "d03dc13f-4a9c-40b3-90b1-5ff55cc7ead3",
+            "name": "1. Get System Health - Admin (Success)",
+            "request": {
+              "url": {
+                "path": [
+                  "system",
+                  "health"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{adminToken}}"
+                }
+              ],
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "24191d00-7f02-4d5f-96c0-325a511c016b",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Status code is 200\", function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "pm.test(\"Response has health status\", function () {",
+                    "    const jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property(\"status\");",
+                    "    pm.expect(jsonData.status).to.be.oneOf([\"healthy\", \"degraded\"]);",
+                    "});",
+                    "pm.test(\"Response has database status\", function () {",
+                    "    const jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property(\"database\");",
+                    "    pm.expect(jsonData.database).to.be.oneOf([\"healthy\", \"unhealthy\"]);",
+                    "});",
+                    "pm.test(\"Response has timestamp\", function () {",
+                    "    const jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property(\"timestamp\");",
+                    "    pm.expect(jsonData.timestamp).to.exist;",
+                    "});",
+                    "pm.test(\"Response has uptime\", function () {",
+                    "    const jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property(\"uptime\");",
+                    "    pm.expect(jsonData.uptime).to.be.a(\"number\");",
+                    "    pm.expect(jsonData.uptime).to.be.at.least(0);",
+                    "});",
+                    "pm.test(\"System is healthy when database is healthy\", function () {",
+                    "    const jsonData = pm.response.json();",
+                    "    if (jsonData.database === \"healthy\") {",
+                    "        pm.expect(jsonData.status).to.equal(\"healthy\");",
+                    "    }",
+                    "});"
+                  ],
+                  "_lastExecutionId": "85ff8b5d-a45a-41f7-aadf-9ecef379f959"
+                }
+              }
+            ]
+          },
+          {
+            "id": "8b224bcf-aba1-41f2-8c46-e79e306a07c7",
+            "name": "2. Get System Health - Doctor (Forbidden)",
+            "request": {
+              "url": {
+                "path": [
+                  "system",
+                  "health"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{doctorToken}}"
+                }
+              ],
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "41356b6d-78bc-4249-aae8-7f24e19f7583",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Status code is 403\", function () {",
+                    "    pm.response.to.have.status(403);",
+                    "});",
+                    "pm.test(\"Error message indicates forbidden\", function () {",
+                    "    const jsonData = pm.response.json();",
+                    "    pm.expect(jsonData).to.have.property(\"message\");",
+                    "});"
+                  ],
+                  "_lastExecutionId": "e8eb9853-4feb-4883-91cf-c9f1d5aadfa1"
+                }
+              }
+            ]
+          },
+          {
+            "id": "3af46f31-9fcb-49b9-9b34-eca7c08ac20d",
+            "name": "3. Get System Health - Unauthorized (No Token)",
+            "request": {
+              "url": {
+                "path": [
+                  "system",
+                  "health"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "41106061-122b-4211-bb57-a0961a9c3d27",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Status code is 401\", function () {",
+                    "    pm.response.to.have.status(401);",
+                    "});"
+                  ],
+                  "_lastExecutionId": "5f10e721-90df-435e-98b8-d53c88a2fff5"
+                }
+              }
+            ]
+          },
+          {
+            "id": "c8bb8121-16a2-4381-b713-e706d0574d62",
+            "name": "4. Get System Health - Verify Timestamp Format",
+            "request": {
+              "url": {
+                "path": [
+                  "system",
+                  "health"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{adminToken}}"
+                }
+              ],
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "9ec1c617-9c38-4fc6-9d96-1f6f1914483a",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Status code is 200\", function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "pm.test(\"Timestamp is valid\", function () {",
+                    "    const jsonData = pm.response.json();",
+                    "    const timestamp = jsonData.timestamp;",
+                    "    ",
+                    "    // Handle different timestamp formats",
+                    "    let date;",
+                    "    if (typeof timestamp === 'string') {",
+                    "        date = new Date(timestamp);",
+                    "    } else if (timestamp && typeof timestamp === 'object') {",
+                    "        if (timestamp._seconds) {",
+                    "            date = new Date(timestamp._seconds * 1000);",
+                    "        } else if (timestamp.seconds) {",
+                    "            date = new Date(timestamp.seconds * 1000);",
+                    "        } else {",
+                    "            date = new Date(timestamp);",
+                    "        }",
+                    "    } else {",
+                    "        date = new Date(timestamp);",
+                    "    }",
+                    "    ",
+                    "    pm.expect(date.getTime()).to.be.a(\"number\");",
+                    "    pm.expect(isNaN(date.getTime())).to.be.false;",
+                    "    ",
+                    "    // Timestamp should be recent (within last minute)",
+                    "    const now = new Date();",
+                    "    const diffSeconds = (now.getTime() - date.getTime()) / 1000;",
+                    "    pm.expect(diffSeconds).to.be.below(60);",
+                    "});"
+                  ],
+                  "_lastExecutionId": "ba1f6b97-1d6d-4143-be22-37f74e5d660b"
+                }
+              }
+            ]
+          },
+          {
+            "id": "5c4332fa-36b7-4664-b6ca-2f892dcf07f0",
+            "name": "5. Get System Health - Verify Uptime Increases",
+            "request": {
+              "url": {
+                "path": [
+                  "system",
+                  "health"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{adminToken}}"
+                }
+              ],
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "prerequest",
+                "script": {
+                  "id": "17edf677-7aba-48f7-b0cc-849207042a0f",
+                  "type": "text/javascript",
+                  "exec": [
+                    "// Store current timestamp",
+                    "pm.environment.set(\"healthCheckTime\", Date.now().toString());"
+                  ],
+                  "_lastExecutionId": "b3d14a94-20fe-49c8-bf07-dd02f29bd713"
+                }
+              },
+              {
+                "listen": "test",
+                "script": {
+                  "id": "32fbc7e0-6342-49e6-a3c7-8dfdfa57833e",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Status code is 200\", function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "pm.test(\"Uptime is a positive number\", function () {",
+                    "    const jsonData = pm.response.json();",
+                    "    pm.expect(jsonData.uptime).to.be.a(\"number\");",
+                    "    pm.expect(jsonData.uptime).to.be.at.least(0);",
+                    "});",
+                    "pm.test(\"Uptime increases over time\", function () {",
+                    "    const jsonData = pm.response.json();",
+                    "    const currentUptime = jsonData.uptime;",
+                    "    ",
+                    "    // Wait 2 seconds",
+                    "    setTimeout(function() {",
+                    "        pm.sendRequest({",
+                    "            url: pm.environment.get(\"baseUrl\") + \"/system/health\",",
+                    "            method: \"GET\",",
+                    "            header: {",
+                    "                \"Authorization\": \"Bearer \" + pm.environment.get(\"adminToken\")",
+                    "            }",
+                    "        }, function(err, res) {",
+                    "            if (!err && res.code === 200) {",
+                    "                const newData = res.json();",
+                    "                pm.expect(newData.uptime).to.be.at.least(currentUptime);",
+                    "            }",
+                    "        });",
+                    "    }, 2000);",
+                    "});"
+                  ],
+                  "_lastExecutionId": "3956aaa3-08e7-4f0c-bb8b-4797bcd4eb32"
+                }
+              }
+            ]
+          },
+          {
+            "id": "dbb46969-daec-4ab2-943d-95d4c46884bb",
+            "name": "6. Get System Health - Multiple Requests (Consistency)",
+            "request": {
+              "url": {
+                "path": [
+                  "system",
+                  "health"
+                ],
+                "host": [
+                  "{{baseUrl}}"
+                ],
+                "query": [],
+                "variable": []
+              },
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{adminToken}}"
+                }
+              ],
+              "method": "GET"
+            },
+            "response": [],
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "id": "555e3969-6327-4e2d-b6a5-515b16f25f17",
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test(\"Status code is 200\", function () {",
+                    "    pm.response.to.have.status(200);",
+                    "});",
+                    "pm.test(\"Health status is consistent\", function () {",
+                    "    const jsonData = pm.response.json();",
+                    "    ",
+                    "    // Make multiple requests to check consistency",
+                    "    const requests = [];",
+                    "    for (let i = 0; i < 3; i++) {",
+                    "        requests.push(new Promise((resolve) => {",
+                    "            setTimeout(() => {",
+                    "                pm.sendRequest({",
+                    "                    url: pm.environment.get(\"baseUrl\") + \"/system/health\",",
+                    "                    method: \"GET\",",
+                    "                    header: {",
+                    "                        \"Authorization\": \"Bearer \" + pm.environment.get(\"adminToken\")",
+                    "                    }",
+                    "                }, function(err, res) {",
+                    "                    if (!err && res.code === 200) {",
+                    "                        resolve(res.json());",
+                    "                    } else {",
+                    "                        resolve(null);",
+                    "                    }",
+                    "                });",
+                    "            }, i * 100);",
+                    "        }));",
+                    "    }",
+                    "    ",
+                    "    // All requests should return same database status",
+                    "    Promise.all(requests).then((results) => {",
+                    "        const databaseStatuses = results.filter(r => r).map(r => r.database);",
+                    "        const uniqueStatuses = [...new Set(databaseStatuses)];",
+                    "        pm.expect(uniqueStatuses.length).to.be.at.most(1);",
+                    "    });",
+                    "});"
+                  ],
+                  "_lastExecutionId": "96f3feb6-5c9a-43b9-8580-d13adf9df1d7"
+                }
+              }
+            ]
+          }
+        ],
+        "event": []
+      }
+    ],
+    "event": [],
+    "variable": [
+      {
+        "type": "string",
+        "value": "http://localhost:3000",
+        "key": "baseUrl"
+      }
+    ],
+    "info": {
+      "_postman_id": "system-health-monitoring-001",
+      "name": "EAGLES - System Health Monitoring",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "description": {
+        "content": "Test suite for System Health Monitoring endpoint",
+        "type": "text/plain"
+      }
+    }
+  },
+  "environment": {
+    "_": {
+      "postman_variable_scope": "environment"
+    },
+    "id": "eagles-local-env",
+    "name": "EAGLES Local",
+    "values": [
+      {
+        "type": "any",
+        "value": "http://localhost:3000",
+        "key": "baseUrl"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "secondarySecretaryToken"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "nurseToken"
+      },
+      {
+        "type": "any",
+        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJRbGs0cWd6RFcxU0tiMmtPMURociIsImVtYWlsIjoiZG9jdG9yLm5hbmFAZWFnbGVzLmNvbSIsInJvbGUiOiJkb2N0b3IiLCJpYXQiOjE3NjYxNDc1NjksImV4cCI6MTc2NjE1MTE2OX0.KfJQuPHEFrqyOVK1GmopStOb5bmtVC8D-vTCbCjIvQE",
+        "key": "doctorToken"
+      },
+      {
+        "type": "any",
+        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMWJLaHd1b3ZUODBmajVLb0Z1cSIsImVtYWlsIjoiYWRtaW5AZWFnbGVzLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NjE0NzU2OCwiZXhwIjoxNzY2MTUxMTY4fQ.T8P4m-LaINbN3ObuxfW7IJUhXoJc6wfZPFa0dGKNBM0",
+        "key": "adminToken"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "patientId"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "nurseId"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "secondarySecretaryHospitalId"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "primarySecretaryToken"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "primarySecretaryId"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "patientId2"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "testIdNumber"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "testIdNumber2"
+      },
+      {
+        "type": "any",
+        "value": "1766147571679",
+        "key": "healthCheckTime"
+      }
+    ]
+  },
+  "globals": {
+    "id": "853d52bc-e6f1-4fda-a71a-627a27832a67",
+    "values": []
+  },
+  "run": {
+    "stats": {
+      "iterations": {
+        "total": 1,
+        "pending": 0,
+        "failed": 0
+      },
+      "items": {
+        "total": 8,
+        "pending": 0,
+        "failed": 0
+      },
+      "scripts": {
+        "total": 9,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequests": {
+        "total": 8,
+        "pending": 0,
+        "failed": 0
+      },
+      "requests": {
+        "total": 12,
+        "pending": 0,
+        "failed": 0
+      },
+      "tests": {
+        "total": 8,
+        "pending": 0,
+        "failed": 0
+      },
+      "assertions": {
+        "total": 19,
+        "pending": 0,
+        "failed": 0
+      },
+      "testScripts": {
+        "total": 8,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequestScripts": {
+        "total": 1,
+        "pending": 0,
+        "failed": 0
+      }
+    },
+    "timings": {
+      "responseAverage": 550.0833333333334,
+      "responseMin": 4,
+      "responseMax": 778,
+      "responseSd": 200.41143444313633,
+      "dnsAverage": 0,
+      "dnsMin": 0,
+      "dnsMax": 0,
+      "dnsSd": 0,
+      "firstByteAverage": 0,
+      "firstByteMin": 0,
+      "firstByteMax": 0,
+      "firstByteSd": 0,
+      "started": 1766147568306,
+      "completed": 1766147576241
+    },
+    "executions": [
+      {
+        "cursor": {
+          "position": 0,
+          "iteration": 0,
+          "length": 8,
+          "cycles": 1,
+          "empty": false,
+          "eof": false,
+          "bof": true,
+          "cr": false,
+          "ref": "046a39c1-25bd-4f6c-aa39-ae3bbb1dfa8a",
+          "httpRequestId": "69228c70-eee2-4c0e-a241-0e0b9a65651b"
+        },
+        "item": {
+          "id": "2976afcd-d68a-4eea-a45c-ef73db0372cf",
+          "name": "1. Login - Admin",
+          "request": {
+            "url": {
+              "path": [
+                "auth",
+                "login"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@eagles.com\",\n  \"password\": \"Admin@123456\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "ac3b04a3-34d1-4164-b4be-e0e1f9bb37d4",
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set(\"adminToken\", jsonData.accessToken);",
+                  "}",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response has access token\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"accessToken\");",
+                  "});"
+                ],
+                "_lastExecutionId": "0d34b135-2712-4cba-a407-f41d31bbadbb"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "auth",
+              "login"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "c2cacdb5-ed56-4ca0-92d9-80e9f499fdb8",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "63",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"email\": \"admin@eagles.com\",\n  \"password\": \"Admin@123456\"\n}"
+          }
+        },
+        "response": {
+          "id": "065d2a4e-dabc-41bb-a41d-d2730a6a871e",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "X-RateLimit-Limit",
+              "value": "100"
+            },
+            {
+              "key": "X-RateLimit-Remaining",
+              "value": "99"
+            },
+            {
+              "key": "X-RateLimit-Reset",
+              "value": "60"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "805"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"325-ZjTgU0hTb8uQ0ap1RaIzmx1tJ/M\""
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 19 Dec 2025 12:32:49 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              97,
+              99,
+              99,
+              101,
+              115,
+              115,
+              84,
+              111,
+              107,
+              101,
+              110,
+              34,
+              58,
+              34,
+              101,
+              121,
+              74,
+              104,
+              98,
+              71,
+              99,
+              105,
+              79,
+              105,
+              74,
+              73,
+              85,
+              122,
+              73,
+              49,
+              78,
+              105,
+              73,
+              115,
+              73,
+              110,
+              82,
+              53,
+              99,
+              67,
+              73,
+              54,
+              73,
+              107,
+              112,
+              88,
+              86,
+              67,
+              74,
+              57,
+              46,
+              101,
+              121,
+              74,
+              122,
+              100,
+              87,
+              73,
+              105,
+              79,
+              105,
+              73,
+              122,
+              77,
+              87,
+              74,
+              76,
+              97,
+              72,
+              100,
+              49,
+              98,
+              51,
+              90,
+              85,
+              79,
+              68,
+              66,
+              109,
+              97,
+              106,
+              86,
+              76,
+              98,
+              48,
+              90,
+              49,
+              99,
+              83,
+              73,
+              115,
+              73,
+              109,
+              86,
+              116,
+              89,
+              87,
+              108,
+              115,
+              73,
+              106,
+              111,
+              105,
+              89,
+              87,
+              82,
+              116,
+              97,
+              87,
+              53,
+              65,
+              90,
+              87,
+              70,
+              110,
+              98,
+              71,
+              86,
+              122,
+              76,
+              109,
+              78,
+              118,
+              98,
+              83,
+              73,
+              115,
+              73,
+              110,
+              74,
+              118,
+              98,
+              71,
+              85,
+              105,
+              79,
+              105,
+              74,
+              104,
+              90,
+              71,
+              49,
+              112,
+              98,
+              105,
+              73,
+              115,
+              73,
+              109,
+              108,
+              104,
+              100,
+              67,
+              73,
+              54,
+              77,
+              84,
+              99,
+              50,
+              78,
+              106,
+              69,
+              48,
+              78,
+              122,
+              85,
+              50,
+              79,
+              67,
+              119,
+              105,
+              90,
+              88,
+              104,
+              119,
+              73,
+              106,
+              111,
+              120,
+              78,
+              122,
+              89,
+              50,
+              77,
+              84,
+              85,
+              120,
+              77,
+              84,
+              89,
+              52,
+              102,
+              81,
+              46,
+              84,
+              56,
+              80,
+              52,
+              109,
+              45,
+              76,
+              97,
+              73,
+              78,
+              98,
+              78,
+              51,
+              79,
+              98,
+              117,
+              120,
+              102,
+              87,
+              55,
+              73,
+              74,
+              85,
+              104,
+              88,
+              111,
+              74,
+              99,
+              54,
+              119,
+              102,
+              90,
+              80,
+              70,
+              97,
+              48,
+              100,
+              71,
+              75,
+              78,
+              66,
+              77,
+              48,
+              34,
+              44,
+              34,
+              114,
+              101,
+              102,
+              114,
+              101,
+              115,
+              104,
+              84,
+              111,
+              107,
+              101,
+              110,
+              34,
+              58,
+              34,
+              101,
+              121,
+              74,
+              104,
+              98,
+              71,
+              99,
+              105,
+              79,
+              105,
+              74,
+              73,
+              85,
+              122,
+              73,
+              49,
+              78,
+              105,
+              73,
+              115,
+              73,
+              110,
+              82,
+              53,
+              99,
+              67,
+              73,
+              54,
+              73,
+              107,
+              112,
+              88,
+              86,
+              67,
+              74,
+              57,
+              46,
+              101,
+              121,
+              74,
+              122,
+              100,
+              87,
+              73,
+              105,
+              79,
+              105,
+              73,
+              122,
+              77,
+              87,
+              74,
+              76,
+              97,
+              72,
+              100,
+              49,
+              98,
+              51,
+              90,
+              85,
+              79,
+              68,
+              66,
+              109,
+              97,
+              106,
+              86,
+              76,
+              98,
+              48,
+              90,
+              49,
+              99,
+              83,
+              73,
+              115,
+              73,
+              109,
+              86,
+              116,
+              89,
+              87,
+              108,
+              115,
+              73,
+              106,
+              111,
+              105,
+              89,
+              87,
+              82,
+              116,
+              97,
+              87,
+              53,
+              65,
+              90,
+              87,
+              70,
+              110,
+              98,
+              71,
+              86,
+              122,
+              76,
+              109,
+              78,
+              118,
+              98,
+              83,
+              73,
+              115,
+              73,
+              110,
+              74,
+              118,
+              98,
+              71,
+              85,
+              105,
+              79,
+              105,
+              74,
+              104,
+              90,
+              71,
+              49,
+              112,
+              98,
+              105,
+              73,
+              115,
+              73,
+              109,
+              108,
+              104,
+              100,
+              67,
+              73,
+              54,
+              77,
+              84,
+              99,
+              50,
+              78,
+              106,
+              69,
+              48,
+              78,
+              122,
+              85,
+              50,
+              79,
+              67,
+              119,
+              105,
+              90,
+              88,
+              104,
+              119,
+              73,
+              106,
+              111,
+              120,
+              78,
+              122,
+              89,
+              50,
+              78,
+              122,
+              85,
+              121,
+              77,
+              122,
+              89,
+              52,
+              102,
+              81,
+              46,
+              95,
+              95,
+              111,
+              73,
+              110,
+              77,
+              50,
+              114,
+              110,
+              120,
+              84,
+              97,
+              88,
+              116,
+              89,
+              81,
+              68,
+              115,
+              108,
+              115,
+              78,
+              114,
+              111,
+              82,
+              81,
+              82,
+              83,
+              86,
+              105,
+              82,
+              56,
+              107,
+              121,
+              104,
+              100,
+              53,
+              119,
+              79,
+              66,
+              107,
+              71,
+              112,
+              99,
+              34,
+              44,
+              34,
+              117,
+              115,
+              101,
+              114,
+              34,
+              58,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              34,
+              51,
+              49,
+              98,
+              75,
+              104,
+              119,
+              117,
+              111,
+              118,
+              84,
+              56,
+              48,
+              102,
+              106,
+              53,
+              75,
+              111,
+              70,
+              117,
+              113,
+              34,
+              44,
+              34,
+              101,
+              109,
+              97,
+              105,
+              108,
+              34,
+              58,
+              34,
+              97,
+              100,
+              109,
+              105,
+              110,
+              64,
+              101,
+              97,
+              103,
+              108,
+              101,
+              115,
+              46,
+              99,
+              111,
+              109,
+              34,
+              44,
+              34,
+              110,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              83,
+              121,
+              115,
+              116,
+              101,
+              109,
+              32,
+              65,
+              100,
+              109,
+              105,
+              110,
+              105,
+              115,
+              116,
+              114,
+              97,
+              116,
+              111,
+              114,
+              34,
+              44,
+              34,
+              112,
+              104,
+              111,
+              110,
+              101,
+              34,
+              58,
+              34,
+              43,
+              50,
+              51,
+              55,
+              54,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              34,
+              44,
+              34,
+              114,
+              111,
+              108,
+              101,
+              34,
+              58,
+              34,
+              97,
+              100,
+              109,
+              105,
+              110,
+              34,
+              44,
+              34,
+              104,
+              111,
+              115,
+              112,
+              105,
+              116,
+              97,
+              108,
+              73,
+              100,
+              34,
+              58,
+              110,
+              117,
+              108,
+              108,
+              44,
+              34,
+              115,
+              112,
+              101,
+              99,
+              105,
+              97,
+              108,
+              116,
+              121,
+              73,
+              100,
+              34,
+              58,
+              110,
+              117,
+              108,
+              108,
+              44,
+              34,
+              105,
+              115,
+              65,
+              99,
+              116,
+              105,
+              118,
+              101,
+              34,
+              58,
+              116,
+              114,
+              117,
+              101,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              123,
+              34,
+              95,
+              115,
+              101,
+              99,
+              111,
+              110,
+              100,
+              115,
+              34,
+              58,
+              49,
+              55,
+              54,
+              51,
+              52,
+              55,
+              49,
+              48,
+              49,
+              57,
+              44,
+              34,
+              95,
+              110,
+              97,
+              110,
+              111,
+              115,
+              101,
+              99,
+              111,
+              110,
+              100,
+              115,
+              34,
+              58,
+              54,
+              50,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              125,
+              44,
+              34,
+              117,
+              112,
+              100,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              123,
+              34,
+              95,
+              115,
+              101,
+              99,
+              111,
+              110,
+              100,
+              115,
+              34,
+              58,
+              49,
+              55,
+              54,
+              51,
+              52,
+              55,
+              49,
+              48,
+              49,
+              57,
+              44,
+              34,
+              95,
+              110,
+              97,
+              110,
+              111,
+              115,
+              101,
+              99,
+              111,
+              110,
+              100,
+              115,
+              34,
+              58,
+              54,
+              50,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              125,
+              125,
+              44,
+              34,
+              101,
+              120,
+              112,
+              105,
+              114,
+              101,
+              115,
+              73,
+              110,
+              34,
+              58,
+              51,
+              54,
+              48,
+              48,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 778,
+          "responseSize": 805
+        },
+        "id": "2976afcd-d68a-4eea-a45c-ef73db0372cf",
+        "assertions": [
+          {
+            "assertion": "Status code is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Response has access token",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "9284ad18-09c1-4be6-8f29-fa3303480073",
+          "length": 8,
+          "cycles": 1,
+          "position": 1,
+          "iteration": 0,
+          "httpRequestId": "dc33eda9-bf1a-4a15-9691-e2cc707a3640"
+        },
+        "item": {
+          "id": "da0e82f9-9972-407b-8922-bbe6d5b9b4b7",
+          "name": "2. Login - Doctor (For Testing Access Control)",
+          "request": {
+            "url": {
+              "path": [
+                "auth",
+                "login"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"doctor.nana@eagles.com\",\n  \"password\": \"Doctor@123\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "35a18107-8fe0-43f8-a952-60964e571d27",
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set(\"doctorToken\", jsonData.accessToken);",
+                  "}",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "_lastExecutionId": "347c9c38-554f-4f90-b195-0d66b2691c3a"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "auth",
+              "login"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "b515d2f1-5be2-4d47-a58d-b79e11e1e38f",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "67",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"email\": \"doctor.nana@eagles.com\",\n  \"password\": \"Doctor@123\"\n}"
+          }
+        },
+        "response": {
+          "id": "655e3222-ffd1-48b7-aa5e-5831021d4bf9",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "X-RateLimit-Limit",
+              "value": "100"
+            },
+            {
+              "key": "X-RateLimit-Remaining",
+              "value": "98"
+            },
+            {
+              "key": "X-RateLimit-Reset",
+              "value": "60"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "843"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"34b-VrOL5ErnHme0gb8HPyV7M3Q9wF0\""
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 19 Dec 2025 12:32:49 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              97,
+              99,
+              99,
+              101,
+              115,
+              115,
+              84,
+              111,
+              107,
+              101,
+              110,
+              34,
+              58,
+              34,
+              101,
+              121,
+              74,
+              104,
+              98,
+              71,
+              99,
+              105,
+              79,
+              105,
+              74,
+              73,
+              85,
+              122,
+              73,
+              49,
+              78,
+              105,
+              73,
+              115,
+              73,
+              110,
+              82,
+              53,
+              99,
+              67,
+              73,
+              54,
+              73,
+              107,
+              112,
+              88,
+              86,
+              67,
+              74,
+              57,
+              46,
+              101,
+              121,
+              74,
+              122,
+              100,
+              87,
+              73,
+              105,
+              79,
+              105,
+              74,
+              82,
+              98,
+              71,
+              115,
+              48,
+              99,
+              87,
+              100,
+              54,
+              82,
+              70,
+              99,
+              120,
+              85,
+              48,
+              116,
+              105,
+              77,
+              109,
+              116,
+              80,
+              77,
+              85,
+              82,
+              111,
+              99,
+              105,
+              73,
+              115,
+              73,
+              109,
+              86,
+              116,
+              89,
+              87,
+              108,
+              115,
+              73,
+              106,
+              111,
+              105,
+              90,
+              71,
+              57,
+              106,
+              100,
+              71,
+              57,
+              121,
+              76,
+              109,
+              53,
+              104,
+              98,
+              109,
+              70,
+              65,
+              90,
+              87,
+              70,
+              110,
+              98,
+              71,
+              86,
+              122,
+              76,
+              109,
+              78,
+              118,
+              98,
+              83,
+              73,
+              115,
+              73,
+              110,
+              74,
+              118,
+              98,
+              71,
+              85,
+              105,
+              79,
+              105,
+              74,
+              107,
+              98,
+              50,
+              78,
+              48,
+              98,
+              51,
+              73,
+              105,
+              76,
+              67,
+              74,
+              112,
+              89,
+              88,
+              81,
+              105,
+              79,
+              106,
+              69,
+              51,
+              78,
+              106,
+              89,
+              120,
+              78,
+              68,
+              99,
+              49,
+              78,
+              106,
+              107,
+              115,
+              73,
+              109,
+              86,
+              52,
+              99,
+              67,
+              73,
+              54,
+              77,
+              84,
+              99,
+              50,
+              78,
+              106,
+              69,
+              49,
+              77,
+              84,
+              69,
+              50,
+              79,
+              88,
+              48,
+              46,
+              75,
+              102,
+              74,
+              81,
+              117,
+              80,
+              72,
+              69,
+              70,
+              114,
+              113,
+              121,
+              79,
+              86,
+              75,
+              49,
+              71,
+              109,
+              111,
+              112,
+              83,
+              116,
+              79,
+              98,
+              53,
+              98,
+              109,
+              116,
+              86,
+              67,
+              56,
+              68,
+              45,
+              118,
+              84,
+              67,
+              98,
+              67,
+              106,
+              73,
+              118,
+              81,
+              69,
+              34,
+              44,
+              34,
+              114,
+              101,
+              102,
+              114,
+              101,
+              115,
+              104,
+              84,
+              111,
+              107,
+              101,
+              110,
+              34,
+              58,
+              34,
+              101,
+              121,
+              74,
+              104,
+              98,
+              71,
+              99,
+              105,
+              79,
+              105,
+              74,
+              73,
+              85,
+              122,
+              73,
+              49,
+              78,
+              105,
+              73,
+              115,
+              73,
+              110,
+              82,
+              53,
+              99,
+              67,
+              73,
+              54,
+              73,
+              107,
+              112,
+              88,
+              86,
+              67,
+              74,
+              57,
+              46,
+              101,
+              121,
+              74,
+              122,
+              100,
+              87,
+              73,
+              105,
+              79,
+              105,
+              74,
+              82,
+              98,
+              71,
+              115,
+              48,
+              99,
+              87,
+              100,
+              54,
+              82,
+              70,
+              99,
+              120,
+              85,
+              48,
+              116,
+              105,
+              77,
+              109,
+              116,
+              80,
+              77,
+              85,
+              82,
+              111,
+              99,
+              105,
+              73,
+              115,
+              73,
+              109,
+              86,
+              116,
+              89,
+              87,
+              108,
+              115,
+              73,
+              106,
+              111,
+              105,
+              90,
+              71,
+              57,
+              106,
+              100,
+              71,
+              57,
+              121,
+              76,
+              109,
+              53,
+              104,
+              98,
+              109,
+              70,
+              65,
+              90,
+              87,
+              70,
+              110,
+              98,
+              71,
+              86,
+              122,
+              76,
+              109,
+              78,
+              118,
+              98,
+              83,
+              73,
+              115,
+              73,
+              110,
+              74,
+              118,
+              98,
+              71,
+              85,
+              105,
+              79,
+              105,
+              74,
+              107,
+              98,
+              50,
+              78,
+              48,
+              98,
+              51,
+              73,
+              105,
+              76,
+              67,
+              74,
+              112,
+              89,
+              88,
+              81,
+              105,
+              79,
+              106,
+              69,
+              51,
+              78,
+              106,
+              89,
+              120,
+              78,
+              68,
+              99,
+              49,
+              78,
+              106,
+              107,
+              115,
+              73,
+              109,
+              86,
+              52,
+              99,
+              67,
+              73,
+              54,
+              77,
+              84,
+              99,
+              50,
+              78,
+              106,
+              99,
+              49,
+              77,
+              106,
+              77,
+              50,
+              79,
+              88,
+              48,
+              46,
+              72,
+              56,
+              103,
+              95,
+              53,
+              102,
+              118,
+              72,
+              109,
+              122,
+              107,
+              50,
+              121,
+              73,
+              82,
+              74,
+              52,
+              52,
+              69,
+              53,
+              55,
+              82,
+              105,
+              79,
+              48,
+              81,
+              114,
+              98,
+              45,
+              78,
+              105,
+              65,
+              51,
+              107,
+              73,
+              100,
+              48,
+              80,
+              67,
+              88,
+              102,
+              122,
+              52,
+              34,
+              44,
+              34,
+              117,
+              115,
+              101,
+              114,
+              34,
+              58,
+              123,
+              34,
+              105,
+              100,
+              34,
+              58,
+              34,
+              81,
+              108,
+              107,
+              52,
+              113,
+              103,
+              122,
+              68,
+              87,
+              49,
+              83,
+              75,
+              98,
+              50,
+              107,
+              79,
+              49,
+              68,
+              104,
+              114,
+              34,
+              44,
+              34,
+              101,
+              109,
+              97,
+              105,
+              108,
+              34,
+              58,
+              34,
+              100,
+              111,
+              99,
+              116,
+              111,
+              114,
+              46,
+              110,
+              97,
+              110,
+              97,
+              64,
+              101,
+              97,
+              103,
+              108,
+              101,
+              115,
+              46,
+              99,
+              111,
+              109,
+              34,
+              44,
+              34,
+              110,
+              97,
+              109,
+              101,
+              34,
+              58,
+              34,
+              68,
+              114,
+              46,
+              32,
+              74,
+              101,
+              97,
+              110,
+              32,
+              78,
+              97,
+              110,
+              97,
+              34,
+              44,
+              34,
+              112,
+              104,
+              111,
+              110,
+              101,
+              34,
+              58,
+              34,
+              43,
+              50,
+              51,
+              55,
+              54,
+              53,
+              53,
+              48,
+              48,
+              52,
+              53,
+              54,
+              55,
+              34,
+              44,
+              34,
+              114,
+              111,
+              108,
+              101,
+              34,
+              58,
+              34,
+              100,
+              111,
+              99,
+              116,
+              111,
+              114,
+              34,
+              44,
+              34,
+              104,
+              111,
+              115,
+              112,
+              105,
+              116,
+              97,
+              108,
+              73,
+              100,
+              34,
+              58,
+              34,
+              87,
+              122,
+              110,
+              101,
+              120,
+              114,
+              84,
+              85,
+              122,
+              121,
+              54,
+              57,
+              89,
+              108,
+              122,
+              70,
+              101,
+              65,
+              88,
+              113,
+              34,
+              44,
+              34,
+              115,
+              112,
+              101,
+              99,
+              105,
+              97,
+              108,
+              116,
+              121,
+              73,
+              100,
+              34,
+              58,
+              110,
+              117,
+              108,
+              108,
+              44,
+              34,
+              105,
+              115,
+              65,
+              99,
+              116,
+              105,
+              118,
+              101,
+              34,
+              58,
+              116,
+              114,
+              117,
+              101,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              123,
+              34,
+              95,
+              115,
+              101,
+              99,
+              111,
+              110,
+              100,
+              115,
+              34,
+              58,
+              49,
+              55,
+              54,
+              51,
+              52,
+              55,
+              49,
+              48,
+              50,
+              51,
+              44,
+              34,
+              95,
+              110,
+              97,
+              110,
+              111,
+              115,
+              101,
+              99,
+              111,
+              110,
+              100,
+              115,
+              34,
+              58,
+              50,
+              49,
+              50,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              125,
+              44,
+              34,
+              117,
+              112,
+              100,
+              97,
+              116,
+              101,
+              100,
+              65,
+              116,
+              34,
+              58,
+              123,
+              34,
+              95,
+              115,
+              101,
+              99,
+              111,
+              110,
+              100,
+              115,
+              34,
+              58,
+              49,
+              55,
+              54,
+              51,
+              52,
+              55,
+              49,
+              48,
+              50,
+              51,
+              44,
+              34,
+              95,
+              110,
+              97,
+              110,
+              111,
+              115,
+              101,
+              99,
+              111,
+              110,
+              100,
+              115,
+              34,
+              58,
+              50,
+              49,
+              50,
+              48,
+              48,
+              48,
+              48,
+              48,
+              48,
+              125,
+              125,
+              44,
+              34,
+              101,
+              120,
+              112,
+              105,
+              114,
+              101,
+              115,
+              73,
+              110,
+              34,
+              58,
+              51,
+              54,
+              48,
+              48,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 679,
+          "responseSize": 843
+        },
+        "id": "da0e82f9-9972-407b-8922-bbe6d5b9b4b7",
+        "assertions": [
+          {
+            "assertion": "Status code is 200",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "396978b4-fd83-4b69-ba80-55783ee99e39",
+          "length": 8,
+          "cycles": 1,
+          "position": 2,
+          "iteration": 0,
+          "httpRequestId": "d07bf02d-a3c6-4ebf-93b6-bf8b968bcafb"
+        },
+        "item": {
+          "id": "d03dc13f-4a9c-40b3-90b1-5ff55cc7ead3",
+          "name": "1. Get System Health - Admin (Success)",
+          "request": {
+            "url": {
+              "path": [
+                "system",
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "24191d00-7f02-4d5f-96c0-325a511c016b",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response has health status\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"status\");",
+                  "    pm.expect(jsonData.status).to.be.oneOf([\"healthy\", \"degraded\"]);",
+                  "});",
+                  "pm.test(\"Response has database status\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"database\");",
+                  "    pm.expect(jsonData.database).to.be.oneOf([\"healthy\", \"unhealthy\"]);",
+                  "});",
+                  "pm.test(\"Response has timestamp\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"timestamp\");",
+                  "    pm.expect(jsonData.timestamp).to.exist;",
+                  "});",
+                  "pm.test(\"Response has uptime\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"uptime\");",
+                  "    pm.expect(jsonData.uptime).to.be.a(\"number\");",
+                  "    pm.expect(jsonData.uptime).to.be.at.least(0);",
+                  "});",
+                  "pm.test(\"System is healthy when database is healthy\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.database === \"healthy\") {",
+                  "        pm.expect(jsonData.status).to.equal(\"healthy\");",
+                  "    }",
+                  "});"
+                ],
+                "_lastExecutionId": "85ff8b5d-a45a-41f7-aadf-9ecef379f959"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "system",
+              "health"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMWJLaHd1b3ZUODBmajVLb0Z1cSIsImVtYWlsIjoiYWRtaW5AZWFnbGVzLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NjE0NzU2OCwiZXhwIjoxNzY2MTUxMTY4fQ.T8P4m-LaINbN3ObuxfW7IJUhXoJc6wfZPFa0dGKNBM0"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "053b69a0-dd15-4d78-8e9c-45407d2ffd06",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "da338d13-78e2-43d3-b817-ee88f050a8f1",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "X-RateLimit-Limit",
+              "value": "100"
+            },
+            {
+              "key": "X-RateLimit-Remaining",
+              "value": "99"
+            },
+            {
+              "key": "X-RateLimit-Reset",
+              "value": "60"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "95"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"5f-dobA02L6zSaXXBmQpwqi0/HkQ60\""
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 19 Dec 2025 12:32:50 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              100,
+              97,
+              116,
+              97,
+              98,
+              97,
+              115,
+              101,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              116,
+              105,
+              109,
+              101,
+              115,
+              116,
+              97,
+              109,
+              112,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              53,
+              45,
+              49,
+              50,
+              45,
+              49,
+              57,
+              84,
+              49,
+              50,
+              58,
+              51,
+              50,
+              58,
+              53,
+              48,
+              46,
+              53,
+              57,
+              56,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              116,
+              105,
+              109,
+              101,
+              34,
+              58,
+              49,
+              50,
+              57,
+              51,
+              53,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 737,
+          "responseSize": 95
+        },
+        "id": "d03dc13f-4a9c-40b3-90b1-5ff55cc7ead3",
+        "assertions": [
+          {
+            "assertion": "Status code is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Response has health status",
+            "skipped": false
+          },
+          {
+            "assertion": "Response has database status",
+            "skipped": false
+          },
+          {
+            "assertion": "Response has timestamp",
+            "skipped": false
+          },
+          {
+            "assertion": "Response has uptime",
+            "skipped": false
+          },
+          {
+            "assertion": "System is healthy when database is healthy",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "bc381fcb-f2c3-425f-adb7-ad2c7abfcb41",
+          "length": 8,
+          "cycles": 1,
+          "position": 3,
+          "iteration": 0,
+          "httpRequestId": "44d49a9c-46de-4f28-b4a3-23ba90ce3209"
+        },
+        "item": {
+          "id": "8b224bcf-aba1-41f2-8c46-e79e306a07c7",
+          "name": "2. Get System Health - Doctor (Forbidden)",
+          "request": {
+            "url": {
+              "path": [
+                "system",
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{doctorToken}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "41356b6d-78bc-4249-aae8-7f24e19f7583",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "pm.test(\"Error message indicates forbidden\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"message\");",
+                  "});"
+                ],
+                "_lastExecutionId": "e8eb9853-4feb-4883-91cf-c9f1d5aadfa1"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "system",
+              "health"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJRbGs0cWd6RFcxU0tiMmtPMURociIsImVtYWlsIjoiZG9jdG9yLm5hbmFAZWFnbGVzLmNvbSIsInJvbGUiOiJkb2N0b3IiLCJpYXQiOjE3NjYxNDc1NjksImV4cCI6MTc2NjE1MTE2OX0.KfJQuPHEFrqyOVK1GmopStOb5bmtVC8D-vTCbCjIvQE"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "7a5f6133-6a65-47b5-a8e4-b3d86da1e9b5",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "d44255d1-aa6e-4fd0-a38b-48eb10d63641",
+          "status": "Forbidden",
+          "code": 403,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "X-RateLimit-Limit",
+              "value": "100"
+            },
+            {
+              "key": "X-RateLimit-Remaining",
+              "value": "98"
+            },
+            {
+              "key": "X-RateLimit-Reset",
+              "value": "60"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "69"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"45-MZJWZc+Y+RUbHpnhz2B2Vipii24\""
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 19 Dec 2025 12:32:50 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              70,
+              111,
+              114,
+              98,
+              105,
+              100,
+              100,
+              101,
+              110,
+              32,
+              114,
+              101,
+              115,
+              111,
+              117,
+              114,
+              99,
+              101,
+              34,
+              44,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              34,
+              58,
+              34,
+              70,
+              111,
+              114,
+              98,
+              105,
+              100,
+              100,
+              101,
+              110,
+              34,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              67,
+              111,
+              100,
+              101,
+              34,
+              58,
+              52,
+              48,
+              51,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 299,
+          "responseSize": 69
+        },
+        "id": "8b224bcf-aba1-41f2-8c46-e79e306a07c7",
+        "assertions": [
+          {
+            "assertion": "Status code is 403",
+            "skipped": false
+          },
+          {
+            "assertion": "Error message indicates forbidden",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "24e152df-7d15-41ea-866a-17516b45919b",
+          "length": 8,
+          "cycles": 1,
+          "position": 4,
+          "iteration": 0,
+          "httpRequestId": "2e482b47-a618-4c96-b406-9155a0384bce"
+        },
+        "item": {
+          "id": "3af46f31-9fcb-49b9-9b34-eca7c08ac20d",
+          "name": "3. Get System Health - Unauthorized (No Token)",
+          "request": {
+            "url": {
+              "path": [
+                "system",
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "41106061-122b-4211-bb57-a0961a9c3d27",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "_lastExecutionId": "5f10e721-90df-435e-98b8-d53c88a2fff5"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "system",
+              "health"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "cd684bbc-ab15-48fc-b950-715b5154f544",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "d1965e1c-797e-4cb5-9a68-1a662c12d36a",
+          "status": "Unauthorized",
+          "code": 401,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "X-RateLimit-Limit",
+              "value": "100"
+            },
+            {
+              "key": "X-RateLimit-Remaining",
+              "value": "97"
+            },
+            {
+              "key": "X-RateLimit-Reset",
+              "value": "59"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "43"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"2b-dGnJzt6gv1nJjX6DJ9RztDWptng\""
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 19 Dec 2025 12:32:50 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              85,
+              110,
+              97,
+              117,
+              116,
+              104,
+              111,
+              114,
+              105,
+              122,
+              101,
+              100,
+              34,
+              44,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              67,
+              111,
+              100,
+              101,
+              34,
+              58,
+              52,
+              48,
+              49,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 4,
+          "responseSize": 43
+        },
+        "id": "3af46f31-9fcb-49b9-9b34-eca7c08ac20d",
+        "assertions": [
+          {
+            "assertion": "Status code is 401",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "61ddca6b-6831-4aaf-b169-ecf408c00955",
+          "length": 8,
+          "cycles": 1,
+          "position": 5,
+          "iteration": 0,
+          "httpRequestId": "45c02343-ecaf-41ac-872f-39015620c48c"
+        },
+        "item": {
+          "id": "c8bb8121-16a2-4381-b713-e706d0574d62",
+          "name": "4. Get System Health - Verify Timestamp Format",
+          "request": {
+            "url": {
+              "path": [
+                "system",
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "9ec1c617-9c38-4fc6-9d96-1f6f1914483a",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Timestamp is valid\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    const timestamp = jsonData.timestamp;",
+                  "    ",
+                  "    // Handle different timestamp formats",
+                  "    let date;",
+                  "    if (typeof timestamp === 'string') {",
+                  "        date = new Date(timestamp);",
+                  "    } else if (timestamp && typeof timestamp === 'object') {",
+                  "        if (timestamp._seconds) {",
+                  "            date = new Date(timestamp._seconds * 1000);",
+                  "        } else if (timestamp.seconds) {",
+                  "            date = new Date(timestamp.seconds * 1000);",
+                  "        } else {",
+                  "            date = new Date(timestamp);",
+                  "        }",
+                  "    } else {",
+                  "        date = new Date(timestamp);",
+                  "    }",
+                  "    ",
+                  "    pm.expect(date.getTime()).to.be.a(\"number\");",
+                  "    pm.expect(isNaN(date.getTime())).to.be.false;",
+                  "    ",
+                  "    // Timestamp should be recent (within last minute)",
+                  "    const now = new Date();",
+                  "    const diffSeconds = (now.getTime() - date.getTime()) / 1000;",
+                  "    pm.expect(diffSeconds).to.be.below(60);",
+                  "});"
+                ],
+                "_lastExecutionId": "ba1f6b97-1d6d-4143-be22-37f74e5d660b"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "system",
+              "health"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMWJLaHd1b3ZUODBmajVLb0Z1cSIsImVtYWlsIjoiYWRtaW5AZWFnbGVzLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NjE0NzU2OCwiZXhwIjoxNzY2MTUxMTY4fQ.T8P4m-LaINbN3ObuxfW7IJUhXoJc6wfZPFa0dGKNBM0"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "bb0fc930-b411-4195-9399-ac3e1125e43e",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "427fcd15-41fc-460a-a4f5-c7c19eff2042",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "X-RateLimit-Limit",
+              "value": "100"
+            },
+            {
+              "key": "X-RateLimit-Remaining",
+              "value": "96"
+            },
+            {
+              "key": "X-RateLimit-Reset",
+              "value": "59"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "95"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"5f-B0th4kX2sDAlc3UfJ9fRZ91IJZQ\""
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 19 Dec 2025 12:32:51 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              100,
+              97,
+              116,
+              97,
+              98,
+              97,
+              115,
+              101,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              116,
+              105,
+              109,
+              101,
+              115,
+              116,
+              97,
+              109,
+              112,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              53,
+              45,
+              49,
+              50,
+              45,
+              49,
+              57,
+              84,
+              49,
+              50,
+              58,
+              51,
+              50,
+              58,
+              53,
+              49,
+              46,
+              54,
+              54,
+              49,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              116,
+              105,
+              109,
+              101,
+              34,
+              58,
+              49,
+              50,
+              57,
+              51,
+              54,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 662,
+          "responseSize": 95
+        },
+        "id": "c8bb8121-16a2-4381-b713-e706d0574d62",
+        "assertions": [
+          {
+            "assertion": "Status code is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Timestamp is valid",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "19cd92fc-d1f6-44d1-a396-812cde6ba829",
+          "length": 8,
+          "cycles": 1,
+          "position": 6,
+          "iteration": 0,
+          "httpRequestId": "3522b127-6d0f-4756-af50-76902163be22",
+          "scriptId": "32fbc7e0-6342-49e6-a3c7-8dfdfa57833e",
+          "execution": "3956aaa3-08e7-4f0c-bb8b-4797bcd4eb32"
+        },
+        "item": {
+          "id": "5c4332fa-36b7-4664-b6ca-2f892dcf07f0",
+          "name": "5. Get System Health - Verify Uptime Increases",
+          "request": {
+            "url": {
+              "path": [
+                "system",
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "17edf677-7aba-48f7-b0cc-849207042a0f",
+                "type": "text/javascript",
+                "exec": [
+                  "// Store current timestamp",
+                  "pm.environment.set(\"healthCheckTime\", Date.now().toString());"
+                ],
+                "_lastExecutionId": "b3d14a94-20fe-49c8-bf07-dd02f29bd713"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "32fbc7e0-6342-49e6-a3c7-8dfdfa57833e",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Uptime is a positive number\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.uptime).to.be.a(\"number\");",
+                  "    pm.expect(jsonData.uptime).to.be.at.least(0);",
+                  "});",
+                  "pm.test(\"Uptime increases over time\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    const currentUptime = jsonData.uptime;",
+                  "    ",
+                  "    // Wait 2 seconds",
+                  "    setTimeout(function() {",
+                  "        pm.sendRequest({",
+                  "            url: pm.environment.get(\"baseUrl\") + \"/system/health\",",
+                  "            method: \"GET\",",
+                  "            header: {",
+                  "                \"Authorization\": \"Bearer \" + pm.environment.get(\"adminToken\")",
+                  "            }",
+                  "        }, function(err, res) {",
+                  "            if (!err && res.code === 200) {",
+                  "                const newData = res.json();",
+                  "                pm.expect(newData.uptime).to.be.at.least(currentUptime);",
+                  "            }",
+                  "        });",
+                  "    }, 2000);",
+                  "});"
+                ],
+                "_lastExecutionId": "3956aaa3-08e7-4f0c-bb8b-4797bcd4eb32"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "system",
+              "health"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMWJLaHd1b3ZUODBmajVLb0Z1cSIsImVtYWlsIjoiYWRtaW5AZWFnbGVzLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NjE0NzU2OCwiZXhwIjoxNzY2MTUxMTY4fQ.T8P4m-LaINbN3ObuxfW7IJUhXoJc6wfZPFa0dGKNBM0"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "0bb052f8-7450-4adc-bc2f-2002f1e7a289",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "ac1200da-7c0c-419e-81bc-eb6071bec345",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "X-RateLimit-Limit",
+              "value": "100"
+            },
+            {
+              "key": "X-RateLimit-Remaining",
+              "value": "94"
+            },
+            {
+              "key": "X-RateLimit-Reset",
+              "value": "56"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "95"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"5f-Yn1RoQcgl1tG2OR4+p1FOxHWLxI\""
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 19 Dec 2025 12:32:54 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              100,
+              97,
+              116,
+              97,
+              98,
+              97,
+              115,
+              101,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              116,
+              105,
+              109,
+              101,
+              115,
+              116,
+              97,
+              109,
+              112,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              53,
+              45,
+              49,
+              50,
+              45,
+              49,
+              57,
+              84,
+              49,
+              50,
+              58,
+              51,
+              50,
+              58,
+              53,
+              52,
+              46,
+              56,
+              51,
+              54,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              116,
+              105,
+              109,
+              101,
+              34,
+              58,
+              49,
+              50,
+              57,
+              52,
+              48,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 568,
+          "responseSize": 95
+        },
+        "id": "f2e2f791-a603-46ac-88e9-ad2017d76ceb",
+        "assertions": [
+          {
+            "assertion": "Status code is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Uptime is a positive number",
+            "skipped": false
+          },
+          {
+            "assertion": "Uptime increases over time",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "19cd92fc-d1f6-44d1-a396-812cde6ba829",
+          "length": 8,
+          "cycles": 1,
+          "position": 6,
+          "iteration": 0,
+          "httpRequestId": "3522b127-6d0f-4756-af50-76902163be22",
+          "scriptId": "32fbc7e0-6342-49e6-a3c7-8dfdfa57833e",
+          "execution": "3956aaa3-08e7-4f0c-bb8b-4797bcd4eb32"
+        },
+        "item": {
+          "id": "5c4332fa-36b7-4664-b6ca-2f892dcf07f0",
+          "name": "5. Get System Health - Verify Uptime Increases",
+          "request": {
+            "url": {
+              "path": [
+                "system",
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "17edf677-7aba-48f7-b0cc-849207042a0f",
+                "type": "text/javascript",
+                "exec": [
+                  "// Store current timestamp",
+                  "pm.environment.set(\"healthCheckTime\", Date.now().toString());"
+                ],
+                "_lastExecutionId": "b3d14a94-20fe-49c8-bf07-dd02f29bd713"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "32fbc7e0-6342-49e6-a3c7-8dfdfa57833e",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Uptime is a positive number\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.uptime).to.be.a(\"number\");",
+                  "    pm.expect(jsonData.uptime).to.be.at.least(0);",
+                  "});",
+                  "pm.test(\"Uptime increases over time\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    const currentUptime = jsonData.uptime;",
+                  "    ",
+                  "    // Wait 2 seconds",
+                  "    setTimeout(function() {",
+                  "        pm.sendRequest({",
+                  "            url: pm.environment.get(\"baseUrl\") + \"/system/health\",",
+                  "            method: \"GET\",",
+                  "            header: {",
+                  "                \"Authorization\": \"Bearer \" + pm.environment.get(\"adminToken\")",
+                  "            }",
+                  "        }, function(err, res) {",
+                  "            if (!err && res.code === 200) {",
+                  "                const newData = res.json();",
+                  "                pm.expect(newData.uptime).to.be.at.least(currentUptime);",
+                  "            }",
+                  "        });",
+                  "    }, 2000);",
+                  "});"
+                ],
+                "_lastExecutionId": "3956aaa3-08e7-4f0c-bb8b-4797bcd4eb32"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "system",
+              "health"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMWJLaHd1b3ZUODBmajVLb0Z1cSIsImVtYWlsIjoiYWRtaW5AZWFnbGVzLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NjE0NzU2OCwiZXhwIjoxNzY2MTUxMTY4fQ.T8P4m-LaINbN3ObuxfW7IJUhXoJc6wfZPFa0dGKNBM0"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "0bb052f8-7450-4adc-bc2f-2002f1e7a289",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "ac1200da-7c0c-419e-81bc-eb6071bec345",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "X-RateLimit-Limit",
+              "value": "100"
+            },
+            {
+              "key": "X-RateLimit-Remaining",
+              "value": "94"
+            },
+            {
+              "key": "X-RateLimit-Reset",
+              "value": "56"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "95"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"5f-Yn1RoQcgl1tG2OR4+p1FOxHWLxI\""
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 19 Dec 2025 12:32:54 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              100,
+              97,
+              116,
+              97,
+              98,
+              97,
+              115,
+              101,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              116,
+              105,
+              109,
+              101,
+              115,
+              116,
+              97,
+              109,
+              112,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              53,
+              45,
+              49,
+              50,
+              45,
+              49,
+              57,
+              84,
+              49,
+              50,
+              58,
+              51,
+              50,
+              58,
+              53,
+              52,
+              46,
+              56,
+              51,
+              54,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              116,
+              105,
+              109,
+              101,
+              34,
+              58,
+              49,
+              50,
+              57,
+              52,
+              48,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 568,
+          "responseSize": 95
+        },
+        "id": "f2e2f791-a603-46ac-88e9-ad2017d76ceb",
+        "assertions": [
+          {
+            "assertion": "Status code is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Uptime is a positive number",
+            "skipped": false
+          },
+          {
+            "assertion": "Uptime increases over time",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "3c903671-42d4-4b61-80b7-45bffee3f828",
+          "length": 8,
+          "cycles": 1,
+          "position": 7,
+          "iteration": 0,
+          "httpRequestId": "c40ef081-72e2-41d1-865a-aa3025a18c59",
+          "scriptId": "555e3969-6327-4e2d-b6a5-515b16f25f17",
+          "execution": "96f3feb6-5c9a-43b9-8580-d13adf9df1d7"
+        },
+        "item": {
+          "id": "dbb46969-daec-4ab2-943d-95d4c46884bb",
+          "name": "6. Get System Health - Multiple Requests (Consistency)",
+          "request": {
+            "url": {
+              "path": [
+                "system",
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "555e3969-6327-4e2d-b6a5-515b16f25f17",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Health status is consistent\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    ",
+                  "    // Make multiple requests to check consistency",
+                  "    const requests = [];",
+                  "    for (let i = 0; i < 3; i++) {",
+                  "        requests.push(new Promise((resolve) => {",
+                  "            setTimeout(() => {",
+                  "                pm.sendRequest({",
+                  "                    url: pm.environment.get(\"baseUrl\") + \"/system/health\",",
+                  "                    method: \"GET\",",
+                  "                    header: {",
+                  "                        \"Authorization\": \"Bearer \" + pm.environment.get(\"adminToken\")",
+                  "                    }",
+                  "                }, function(err, res) {",
+                  "                    if (!err && res.code === 200) {",
+                  "                        resolve(res.json());",
+                  "                    } else {",
+                  "                        resolve(null);",
+                  "                    }",
+                  "                });",
+                  "            }, i * 100);",
+                  "        }));",
+                  "    }",
+                  "    ",
+                  "    // All requests should return same database status",
+                  "    Promise.all(requests).then((results) => {",
+                  "        const databaseStatuses = results.filter(r => r).map(r => r.database);",
+                  "        const uniqueStatuses = [...new Set(databaseStatuses)];",
+                  "        pm.expect(uniqueStatuses.length).to.be.at.most(1);",
+                  "    });",
+                  "});"
+                ],
+                "_lastExecutionId": "96f3feb6-5c9a-43b9-8580-d13adf9df1d7"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "system",
+              "health"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMWJLaHd1b3ZUODBmajVLb0Z1cSIsImVtYWlsIjoiYWRtaW5AZWFnbGVzLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NjE0NzU2OCwiZXhwIjoxNzY2MTUxMTY4fQ.T8P4m-LaINbN3ObuxfW7IJUhXoJc6wfZPFa0dGKNBM0"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "4f5519a0-7012-4b29-b6a1-f9ac29fc5251",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "fcab83f6-5a18-4db7-943a-1fc3667be1dd",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "X-RateLimit-Limit",
+              "value": "100"
+            },
+            {
+              "key": "X-RateLimit-Remaining",
+              "value": "90"
+            },
+            {
+              "key": "X-RateLimit-Reset",
+              "value": "55"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "95"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"5f-eEgmRdydAhaxz0e7xZCCP87dXmk\""
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 19 Dec 2025 12:32:56 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              100,
+              97,
+              116,
+              97,
+              98,
+              97,
+              115,
+              101,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              116,
+              105,
+              109,
+              101,
+              115,
+              116,
+              97,
+              109,
+              112,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              53,
+              45,
+              49,
+              50,
+              45,
+              49,
+              57,
+              84,
+              49,
+              50,
+              58,
+              51,
+              50,
+              58,
+              53,
+              54,
+              46,
+              50,
+              51,
+              50,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              116,
+              105,
+              109,
+              101,
+              34,
+              58,
+              49,
+              50,
+              57,
+              52,
+              49,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 607,
+          "responseSize": 95
+        },
+        "id": "47836e9e-c941-41f0-b71c-e2129e2e5881",
+        "assertions": [
+          {
+            "assertion": "Status code is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Health status is consistent",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "3c903671-42d4-4b61-80b7-45bffee3f828",
+          "length": 8,
+          "cycles": 1,
+          "position": 7,
+          "iteration": 0,
+          "httpRequestId": "c40ef081-72e2-41d1-865a-aa3025a18c59",
+          "scriptId": "555e3969-6327-4e2d-b6a5-515b16f25f17",
+          "execution": "96f3feb6-5c9a-43b9-8580-d13adf9df1d7"
+        },
+        "item": {
+          "id": "dbb46969-daec-4ab2-943d-95d4c46884bb",
+          "name": "6. Get System Health - Multiple Requests (Consistency)",
+          "request": {
+            "url": {
+              "path": [
+                "system",
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "555e3969-6327-4e2d-b6a5-515b16f25f17",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Health status is consistent\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    ",
+                  "    // Make multiple requests to check consistency",
+                  "    const requests = [];",
+                  "    for (let i = 0; i < 3; i++) {",
+                  "        requests.push(new Promise((resolve) => {",
+                  "            setTimeout(() => {",
+                  "                pm.sendRequest({",
+                  "                    url: pm.environment.get(\"baseUrl\") + \"/system/health\",",
+                  "                    method: \"GET\",",
+                  "                    header: {",
+                  "                        \"Authorization\": \"Bearer \" + pm.environment.get(\"adminToken\")",
+                  "                    }",
+                  "                }, function(err, res) {",
+                  "                    if (!err && res.code === 200) {",
+                  "                        resolve(res.json());",
+                  "                    } else {",
+                  "                        resolve(null);",
+                  "                    }",
+                  "                });",
+                  "            }, i * 100);",
+                  "        }));",
+                  "    }",
+                  "    ",
+                  "    // All requests should return same database status",
+                  "    Promise.all(requests).then((results) => {",
+                  "        const databaseStatuses = results.filter(r => r).map(r => r.database);",
+                  "        const uniqueStatuses = [...new Set(databaseStatuses)];",
+                  "        pm.expect(uniqueStatuses.length).to.be.at.most(1);",
+                  "    });",
+                  "});"
+                ],
+                "_lastExecutionId": "96f3feb6-5c9a-43b9-8580-d13adf9df1d7"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "system",
+              "health"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMWJLaHd1b3ZUODBmajVLb0Z1cSIsImVtYWlsIjoiYWRtaW5AZWFnbGVzLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NjE0NzU2OCwiZXhwIjoxNzY2MTUxMTY4fQ.T8P4m-LaINbN3ObuxfW7IJUhXoJc6wfZPFa0dGKNBM0"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "4f5519a0-7012-4b29-b6a1-f9ac29fc5251",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "fcab83f6-5a18-4db7-943a-1fc3667be1dd",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "X-RateLimit-Limit",
+              "value": "100"
+            },
+            {
+              "key": "X-RateLimit-Remaining",
+              "value": "90"
+            },
+            {
+              "key": "X-RateLimit-Reset",
+              "value": "55"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "95"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"5f-eEgmRdydAhaxz0e7xZCCP87dXmk\""
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 19 Dec 2025 12:32:56 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              100,
+              97,
+              116,
+              97,
+              98,
+              97,
+              115,
+              101,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              116,
+              105,
+              109,
+              101,
+              115,
+              116,
+              97,
+              109,
+              112,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              53,
+              45,
+              49,
+              50,
+              45,
+              49,
+              57,
+              84,
+              49,
+              50,
+              58,
+              51,
+              50,
+              58,
+              53,
+              54,
+              46,
+              50,
+              51,
+              50,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              116,
+              105,
+              109,
+              101,
+              34,
+              58,
+              49,
+              50,
+              57,
+              52,
+              49,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 607,
+          "responseSize": 95
+        },
+        "id": "47836e9e-c941-41f0-b71c-e2129e2e5881",
+        "assertions": [
+          {
+            "assertion": "Status code is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Health status is consistent",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "3c903671-42d4-4b61-80b7-45bffee3f828",
+          "length": 8,
+          "cycles": 1,
+          "position": 7,
+          "iteration": 0,
+          "httpRequestId": "c40ef081-72e2-41d1-865a-aa3025a18c59",
+          "scriptId": "555e3969-6327-4e2d-b6a5-515b16f25f17",
+          "execution": "96f3feb6-5c9a-43b9-8580-d13adf9df1d7"
+        },
+        "item": {
+          "id": "dbb46969-daec-4ab2-943d-95d4c46884bb",
+          "name": "6. Get System Health - Multiple Requests (Consistency)",
+          "request": {
+            "url": {
+              "path": [
+                "system",
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "555e3969-6327-4e2d-b6a5-515b16f25f17",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Health status is consistent\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    ",
+                  "    // Make multiple requests to check consistency",
+                  "    const requests = [];",
+                  "    for (let i = 0; i < 3; i++) {",
+                  "        requests.push(new Promise((resolve) => {",
+                  "            setTimeout(() => {",
+                  "                pm.sendRequest({",
+                  "                    url: pm.environment.get(\"baseUrl\") + \"/system/health\",",
+                  "                    method: \"GET\",",
+                  "                    header: {",
+                  "                        \"Authorization\": \"Bearer \" + pm.environment.get(\"adminToken\")",
+                  "                    }",
+                  "                }, function(err, res) {",
+                  "                    if (!err && res.code === 200) {",
+                  "                        resolve(res.json());",
+                  "                    } else {",
+                  "                        resolve(null);",
+                  "                    }",
+                  "                });",
+                  "            }, i * 100);",
+                  "        }));",
+                  "    }",
+                  "    ",
+                  "    // All requests should return same database status",
+                  "    Promise.all(requests).then((results) => {",
+                  "        const databaseStatuses = results.filter(r => r).map(r => r.database);",
+                  "        const uniqueStatuses = [...new Set(databaseStatuses)];",
+                  "        pm.expect(uniqueStatuses.length).to.be.at.most(1);",
+                  "    });",
+                  "});"
+                ],
+                "_lastExecutionId": "96f3feb6-5c9a-43b9-8580-d13adf9df1d7"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "system",
+              "health"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMWJLaHd1b3ZUODBmajVLb0Z1cSIsImVtYWlsIjoiYWRtaW5AZWFnbGVzLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NjE0NzU2OCwiZXhwIjoxNzY2MTUxMTY4fQ.T8P4m-LaINbN3ObuxfW7IJUhXoJc6wfZPFa0dGKNBM0"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "4f5519a0-7012-4b29-b6a1-f9ac29fc5251",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "fcab83f6-5a18-4db7-943a-1fc3667be1dd",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "X-RateLimit-Limit",
+              "value": "100"
+            },
+            {
+              "key": "X-RateLimit-Remaining",
+              "value": "90"
+            },
+            {
+              "key": "X-RateLimit-Reset",
+              "value": "55"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "95"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"5f-eEgmRdydAhaxz0e7xZCCP87dXmk\""
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 19 Dec 2025 12:32:56 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              100,
+              97,
+              116,
+              97,
+              98,
+              97,
+              115,
+              101,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              116,
+              105,
+              109,
+              101,
+              115,
+              116,
+              97,
+              109,
+              112,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              53,
+              45,
+              49,
+              50,
+              45,
+              49,
+              57,
+              84,
+              49,
+              50,
+              58,
+              51,
+              50,
+              58,
+              53,
+              54,
+              46,
+              50,
+              51,
+              50,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              116,
+              105,
+              109,
+              101,
+              34,
+              58,
+              49,
+              50,
+              57,
+              52,
+              49,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 607,
+          "responseSize": 95
+        },
+        "id": "47836e9e-c941-41f0-b71c-e2129e2e5881",
+        "assertions": [
+          {
+            "assertion": "Status code is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Health status is consistent",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "3c903671-42d4-4b61-80b7-45bffee3f828",
+          "length": 8,
+          "cycles": 1,
+          "position": 7,
+          "iteration": 0,
+          "httpRequestId": "c40ef081-72e2-41d1-865a-aa3025a18c59",
+          "scriptId": "555e3969-6327-4e2d-b6a5-515b16f25f17",
+          "execution": "96f3feb6-5c9a-43b9-8580-d13adf9df1d7"
+        },
+        "item": {
+          "id": "dbb46969-daec-4ab2-943d-95d4c46884bb",
+          "name": "6. Get System Health - Multiple Requests (Consistency)",
+          "request": {
+            "url": {
+              "path": [
+                "system",
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "method": "GET"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "555e3969-6327-4e2d-b6a5-515b16f25f17",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Health status is consistent\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    ",
+                  "    // Make multiple requests to check consistency",
+                  "    const requests = [];",
+                  "    for (let i = 0; i < 3; i++) {",
+                  "        requests.push(new Promise((resolve) => {",
+                  "            setTimeout(() => {",
+                  "                pm.sendRequest({",
+                  "                    url: pm.environment.get(\"baseUrl\") + \"/system/health\",",
+                  "                    method: \"GET\",",
+                  "                    header: {",
+                  "                        \"Authorization\": \"Bearer \" + pm.environment.get(\"adminToken\")",
+                  "                    }",
+                  "                }, function(err, res) {",
+                  "                    if (!err && res.code === 200) {",
+                  "                        resolve(res.json());",
+                  "                    } else {",
+                  "                        resolve(null);",
+                  "                    }",
+                  "                });",
+                  "            }, i * 100);",
+                  "        }));",
+                  "    }",
+                  "    ",
+                  "    // All requests should return same database status",
+                  "    Promise.all(requests).then((results) => {",
+                  "        const databaseStatuses = results.filter(r => r).map(r => r.database);",
+                  "        const uniqueStatuses = [...new Set(databaseStatuses)];",
+                  "        pm.expect(uniqueStatuses.length).to.be.at.most(1);",
+                  "    });",
+                  "});"
+                ],
+                "_lastExecutionId": "96f3feb6-5c9a-43b9-8580-d13adf9df1d7"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "3000",
+            "path": [
+              "system",
+              "health"
+            ],
+            "host": [
+              "localhost"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMWJLaHd1b3ZUODBmajVLb0Z1cSIsImVtYWlsIjoiYWRtaW5AZWFnbGVzLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NjE0NzU2OCwiZXhwIjoxNzY2MTUxMTY4fQ.T8P4m-LaINbN3ObuxfW7IJUhXoJc6wfZPFa0dGKNBM0"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Accept",
+              "value": "*/*",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "4f5519a0-7012-4b29-b6a1-f9ac29fc5251",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "localhost:3000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            }
+          ],
+          "method": "GET"
+        },
+        "response": {
+          "id": "fcab83f6-5a18-4db7-943a-1fc3667be1dd",
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "X-Powered-By",
+              "value": "Express"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "http://localhost:5173"
+            },
+            {
+              "key": "Vary",
+              "value": "Origin"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "X-RateLimit-Limit",
+              "value": "100"
+            },
+            {
+              "key": "X-RateLimit-Remaining",
+              "value": "90"
+            },
+            {
+              "key": "X-RateLimit-Reset",
+              "value": "55"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "key": "Content-Length",
+              "value": "95"
+            },
+            {
+              "key": "ETag",
+              "value": "W/\"5f-eEgmRdydAhaxz0e7xZCCP87dXmk\""
+            },
+            {
+              "key": "Date",
+              "value": "Fri, 19 Dec 2025 12:32:56 GMT"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "Keep-Alive",
+              "value": "timeout=5"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              115,
+              116,
+              97,
+              116,
+              117,
+              115,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              100,
+              97,
+              116,
+              97,
+              98,
+              97,
+              115,
+              101,
+              34,
+              58,
+              34,
+              104,
+              101,
+              97,
+              108,
+              116,
+              104,
+              121,
+              34,
+              44,
+              34,
+              116,
+              105,
+              109,
+              101,
+              115,
+              116,
+              97,
+              109,
+              112,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              53,
+              45,
+              49,
+              50,
+              45,
+              49,
+              57,
+              84,
+              49,
+              50,
+              58,
+              51,
+              50,
+              58,
+              53,
+              54,
+              46,
+              50,
+              51,
+              50,
+              90,
+              34,
+              44,
+              34,
+              117,
+              112,
+              116,
+              105,
+              109,
+              101,
+              34,
+              58,
+              49,
+              50,
+              57,
+              52,
+              49,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 607,
+          "responseSize": 95
+        },
+        "id": "47836e9e-c941-41f0-b71c-e2129e2e5881",
+        "assertions": [
+          {
+            "assertion": "Status code is 200",
+            "skipped": false
+          },
+          {
+            "assertion": "Health status is consistent",
+            "skipped": false
+          }
+        ]
+      }
+    ],
+    "transfers": {
+      "responseTotal": 2520
+    },
+    "failures": [],
+    "error": null
+  }
+}

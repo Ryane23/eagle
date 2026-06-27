@@ -1,0 +1,476 @@
+EAGLE - User Scenarios by Actor
+1. EAGLE NETWORK OVERVIEW
+1.1 Network Structure
+graph TB
+    subgraph "Primary Center"
+        CP[Primary Center Yaoundé]
+        SP[Primary Secretary]
+        MP[Specialist Doctors]
+        AP[Administrator]
+    end
+    
+    subgraph "Secondary Centers"
+        CS1[Secondary Center Douala]
+        CS2[Secondary Center Bafoussam]
+        CS3[Secondary Center Maroua]
+    end
+    
+    subgraph "Secondary Center Staff"
+        SS[Secondary Secretary]
+        IS[Nurse]
+        PT[Patients]
+    end
+    
+    CS1 --> CP
+    CS2 --> CP
+    CS3 --> CP
+    
+    SS --> SP
+    PT --> MP
+1.2 Global Consultation Flow
+Main Steps:
+  1. Patient Registration (Secondary Secretary)
+  2. Urgency Validation (Primary Secretary)
+  3. Patient Preparation (Nurse)
+  4. Video Consultation (Doctor + Patient)
+  5. Post-Consultation (Nurse + Secretary)
+  6. Follow-up (All actors)
+________________________________________
+ 
+2. SECONDARY SECRETARY SCENARIO
+2.1 Patient Arrival at Center
+Context: Patient arrives at secondary center in Douala
+Secondary Secretary Actions:
+1. Patient Welcome (08:30):
+   - Identity document verification
+   - ID document scan in system
+   - Patient file creation/search
+   
+2. Request Registration:
+   - Consultation reason entry
+   - Requested specialty (Cardiology)
+   - Initial urgency assessment (1-5)
+   - Symptom photos if relevant
+   
+3. Order Number Assignment:
+   - System generates ticket #2025-DLA-0045
+   - Queue position: 3rd
+   - Estimated wait time: 45 minutes
+   
+4. Patient Information:
+   - Ticket with QR code delivery
+   - Teleconsultation process explanation
+   - Preparation instructions (fasting if necessary)
+   
+5. Network Notification:
+   - Automatic alert to primary center
+   - If urgency ≥ 3: Immediate notification
+   - Real-time queue update
+User Interface:
+// Secondary Secretary main screen
+{
+  "patient_form": {
+    "name": "Kamga Jean",
+    "age": 45,
+    "reason": "Chest pain for 2 days",
+    "specialty": "Cardiology",
+    "suggested_urgency": 4,
+    "documents": ["cni_scan.jpg", "previous_prescription.pdf"]
+  },
+  "status": "Awaiting urgency validation"
+}
+2.2 Queue Monitoring
+Continuous Actions:
+Monitoring:
+  - Queue screen surveillance
+  - Patient updates on wait times
+  - Delay/cancellation management
+  - Communication with primary center
+
+Conflict Management:
+  - Dissatisfied patient with delay
+  - Schedule change request
+  - Emergency occurrence (patient feeling worse)
+  - Technical equipment problems
+________________________________________
+ 
+3. PRIMARY SECRETARY SCENARIO
+3.1 Request Reception from Secondary Center
+Context: Level 4 urgency notification received from Douala
+Primary Secretary Actions:
+1. Request Assessment (08:35):
+   - Complete patient file consultation
+   - Medical history verification
+   - Symptom description analysis
+   - Attachment photos/documents
+   
+2. Urgency Validation/Modification:
+   - Level 4 confirmation → Maintained
+   - OR Reclassification 4 → 5 (critical)
+   - System justification
+   - Automatic notification to secondary center
+   
+3. Doctor Assignment:
+   - Dr. Nana (Cardiologist) schedule consultation
+   - Availability check: Free at 09:15
+   - 30-minute slot reservation
+   - Doctor consultation notification
+   
+4. Network Coordination:
+   - Global queue update
+   - Multi-center planning optimization
+   - Priority management
+   - Center delay communication
+Decision Interface:
+// Primary Secretary dashboard
+{
+  "urgency_requests": [
+    {
+      "id": "2025-DLA-0045",
+      "patient": "Kamga Jean, 45 years",
+      "center": "Douala",
+      "proposed_urgency": 4,
+      "validated_urgency": 4,
+      "assigned_doctor": "Dr. Nana",
+      "slot": "09:15-09:45",
+      "status": "Confirmed"
+    }
+  ],
+  "actions": ["Validate", "Modify urgency", "Reassign doctor"]
+}
+3.2 Global Planning Management
+Strategic Actions:
+Daily Optimization:
+  - Load distribution among doctors
+  - Secondary center balancing
+  - Emergency vs scheduled management
+  - Activity peak anticipation
+
+Multi-Center Coordination:
+  - Network capacity surveillance
+  - Patient redirection if necessary
+  - Technical failure management
+  - Communication with all centers
+________________________________________
+ 
+4. NURSE SCENARIO (SECONDARY CENTER)
+4.1 Pre-Consultation Preparation
+Context: Patient Kamga called for preparation (09:00)
+Nurse Actions:
+1. Welcome to Preparation Room:
+   - Patient identity verification
+   - Medical file consultation
+   - Teleconsultation process explanation
+   - Patient reassurance
+   
+2. Vital Signs Taking:
+   - Blood pressure: 165/95 mmHg
+   - Heart rate: 95 bpm
+   - Temperature: 37.2°C
+   - O2 saturation: 98%
+   - Weight: 78 kg
+   
+3. EHR Update:
+   - Vital signs entry
+   - Observation notes (pallor, fatigue)
+   - Photo upload if necessary
+   - Detailed symptom history
+   
+4. Technical Preparation:
+   - Video equipment test
+   - Audio/microphone verification
+   - Optimal patient positioning
+   - Room lighting adjustment
+   
+5. Pre-Consultation Documentation:
+   - Checklist completed
+   - Questions for doctor noted
+   - Suggested additional exams
+   - Patient psychological state
+EHR Interface:
+// EHR Update screen
+{
+  "patient_id": "2025-DLA-0045",
+  "vitals": {
+    "blood_pressure": "165/95",
+    "heart_rate": 95,
+    "temperature": 37.2,
+    "spo2": 98,
+    "alert": "Grade 1 Hypertension"
+  },
+  "observations": "Anxious patient, chest pain 6/10",
+  "preparation_complete": true,
+  "ready_time": "09:12"
+}
+4.2 Assistance During Consultation
+Real-time Actions:
+Technical Monitoring:
+  - Video/audio quality surveillance
+  - Parameter adjustment if necessary
+  - Technical problem resolution
+  - IT support communication
+
+Medical Assistance:
+  - Patient help for physical examination
+  - Doctor-guided palpation
+  - Document presentation to camera
+  - Translation if language barrier
+
+Patient Support:
+  - Reassurance during consultation
+  - Doctor instruction clarification
+  - Important note taking
+  - Additional questions
+________________________________________
+ 
+5. SPECIALIST DOCTOR SCENARIO
+5.1 Consultation Preparation
+Context: Dr. Nana, cardiologist, prepares consultation 09:15
+Doctor Actions:
+1. File Consultation (09:10):
+   - Complete medical history reading
+   - Recent vital signs analysis
+   - Document/photo visualization
+   - Attention point identification
+   
+2. Question Preparation:
+   - Directed anamnesis to conduct
+   - Physical exams to request
+   - Diagnostic hypotheses
+   - Potential additional exams
+   
+3. Technical Verification:
+   - Video connection test
+   - Audio quality verified
+   - Reference documents opened
+   - Prescription software ready
+5.2 Video Consultation (09:15-09:40)
+Standard Procedure:
+Phase 1 - Anamnesis (5 min):
+  - Patient + nurse greetings
+  - Detailed symptom questions
+  - Event chronology
+  - Triggering/relieving factors
+  
+Phase 2 - Guided Physical Examination (10 min):
+  - General patient inspection
+  - Guided thoracic palpation (nurse)
+  - Cardiac auscultation (stethoscope)
+  - Lower limb edema verification
+  
+Phase 3 - Analysis & Discussion (10 min):
+  - Observation synthesis
+  - Shared diagnostic hypotheses
+  - Additional exam recommendations
+  - Initial therapeutic plan
+  
+Phase 4 - Prescriptions & Advice (5 min):
+  - Electronic prescription writing
+  - Therapeutic instructions
+  - Hygiene-dietary advice
+  - Follow-up planning
+Consultation Interface:
+// Doctor Consultation screen
+{
+  "patient": {
+    "name": "Kamga Jean",
+    "age": 45,
+    "current_vitals": "BP: 165/95, HR: 95",
+    "reason": "Chest pain"
+  },
+  "video_feed": "active",
+  "tools": ["prescription", "referral", "follow_up"],
+  "diagnosis": {
+    "primary": "Suspected unstable angina",
+    "exams": ["ECG", "Troponins", "Cardiac echo"],
+    "urgency": "Cardiology consultation within 48h"
+  }
+}
+5.3 Immediate Post-Consultation
+Doctor Actions:
+Documentation:
+  - Detailed consultation report
+  - Retained diagnosis(es)
+  - Validated prescriptions
+  - Follow-up recommendations
+  
+Communications:
+  - Specific nurse instructions
+  - Secondary center recommendations
+  - Emergency if deterioration
+  - Next consultation scheduling
+  
+Care Coordination:
+  - Local cardiologist referral if needed
+  - Coordination with treating physician
+  - Biological parameter follow-up
+  - Control appointment scheduled
+________________________________________
+ 
+6. POST-CONSULTATION SCENARIO (NURSE)
+6.1 Immediate Post-Consultation Actions
+Context: Consultation end at 09:40
+Nurse Actions:
+1. Patient Summary:
+   - Diagnosis explanation in simple terms
+   - Prescription clarification
+   - Detailed therapeutic instructions
+   - Patient questions/concerns
+   
+2. Document Delivery:
+   - Prescription printing
+   - Consultation report
+   - Additional exam voucher
+   - Emergency contact coordinates
+   
+3. Follow-up Planning:
+   - Local exam appointments
+   - Partner laboratory contact
+   - Next consultation scheduling
+   - Automatic SMS reminders
+   
+4. EHR Update:
+   - Doctor conclusion integration
+   - Post-consultation notes
+   - Updated care plan
+   - Programmed follow-up alerts
+6.2 Local Coordination
+Follow-up Actions:
+Local Partners:
+  - Laboratory contact for exams
+  - Pharmacy coordination for medications
+  - Local cardiologist referral if urgent
+  - Treating physician information
+
+Patient Follow-up:
+  - Day+1 exam reminder SMS
+  - Day+7 control call
+  - Question availability
+  - Result return coordination
+________________________________________
+ 
+7. SYSTEM ADMINISTRATOR SCENARIO
+7.1 Daily Monitoring
+Administrator Actions:
+Network Surveillance:
+  - System performance monitoring
+  - Inter-center traffic analysis
+  - Technical anomaly detection
+  - Preventive maintenance
+
+Analytics & Reporting:
+  - Daily consultation statistics
+  - Average wait times per center
+  - Patient satisfaction rates
+  - Doctor/specialty performance
+
+Capacity Management:
+  - Network resource optimization
+  - Scale-up planning
+  - Bandwidth allocation
+  - Maintenance coordination
+7.2 Incident Management
+Emergency Procedures:
+Technical Incident:
+  - Automatic system alert
+  - Quick problem diagnosis
+  - Contingency plan activation
+  - Center communication
+
+Medical Escalation:
+  - Critical alert surveillance
+  - On-call doctor coordination
+  - Emergency protocol activation
+  - Incident resolution follow-up
+________________________________________
+ 
+8. DATA FLOWS AND COMMUNICATIONS
+8.1 Complete Consultation Timeline
+gantt
+    title EAGLE Consultation Chronology
+    dateFormat  HH:mm
+    axisFormat %H:%M
+    
+    section Patient
+    Center Arrival          :08:30, 08:35
+    Waiting                 :08:35, 09:00
+    Preparation             :09:00, 09:15
+    Consultation            :09:15, 09:40
+    Post-consultation       :09:40, 09:50
+    
+    section Secondary Sec.
+    Registration            :08:30, 08:40
+    Queue follow-up         :08:40, 09:50
+    
+    section Primary Sec.
+    Urgency validation      :08:35, 08:45
+    Doctor assignment       :08:45, 08:50
+    
+    section Nurse
+    Patient preparation     :09:00, 09:15
+    Consultation assistance :09:15, 09:40
+    Post-consultation       :09:40, 09:50
+    
+    section Doctor
+    Preparation             :09:10, 09:15
+    Consultation            :09:15, 09:40
+    Documentation           :09:40, 09:45
+8.2 Notifications and Alerts
+Notification System:
+  Secondary Secretary:
+    - "Urgency validated level 4"
+    - "Doctor assigned: Dr. Nana 09:15"
+    - "Patient ready for consultation"
+  
+  Primary Secretary:
+    - "New urgency request Douala"
+    - "Schedule updated"
+    - "Consultation completed - report available"
+  
+  Nurse:
+    - "Patient Kamga - Preparation in 15 min"
+    - "Dr. Nana joins consultation"
+    - "Post-consultation: Print prescription"
+  
+  Doctor:
+    - "Kamga consultation in 5 min"
+    - "Patient file updated"
+    - "Prescribed exams sent to laboratory"
+  
+  Patient:
+    - SMS: "Consultation confirmed 09:15"
+    - SMS: "Room 2 presentation in 10 min"
+    - SMS: "Exams scheduled - Reminder tomorrow"
+ 
+9. EMERGENCY MANAGEMENT
+9.1 Critical Urgency Escalation (Level 5)
+Scenario: Patient with suspected stroke arrives in Maroua
+Automatic System Actions:
+Immediate Alert (< 30 seconds):
+  - Push notification all actors
+  - On-call doctor wake-up
+  - Emergency slot reservation
+  - Neighboring center alert
+
+Special Protocol:
+  - Immediate consultation without waiting
+  - Neurologist contacted automatically
+  - Evacuation preparation if necessary
+  - Local SAMU coordination
+9.2 Degraded Mode
+Scenario: Internet outage at secondary center
+Contingency Actions:
+Offline Mode Switch:
+  - Local server activation
+  - Offline consultation recording
+  - Radio/telephone communication
+  - Reconnection synchronization
+
+Patient Rerouting:
+  - Neighboring center redirection
+  - Transport organized if critical
+  - Waiting patient information
+  - Non-urgent consultation postponement
+________________________________________
+This interaction system enables smooth EAGLE network operation with optimal coordination between all actors and efficient remote patient care.
+
