@@ -1,0 +1,249 @@
+EAGLE PROJECT
+Recommended Software Architecture
+Electronic Assistance for Global Liaison in Emergency
+Version 1.0
+Date: 12/6/2025
+Prepared for the EAGLE Development Team
+ 
+1. Executive Summary	1
+1.1 Primary Recommendation	1
+1.2 Justification	1
+2. EAGLE Project Context	1
+2.1 Objectives	1
+2.2 Technical Constraints	1
+2.3 Main Modules	1
+3. Recommended Architecture: Modular Monolith	1
+3.1 Overview	1
+General Structure	1
+3.2 Backend Modules	1
+4. Clean Architecture per Module	1
+4.1 Example: Consultations Module Structure	1
+5. Architecture Comparison	1
+6. Technology Stack	1
+6.1 Frontend	1
+6.2 Backend	1
+6.3 Database	1
+6.4 Teleconsultation	1
+6.5 Infrastructure	1
+7. Key Technical Decisions	1
+7.1 Offline Mode Management	1
+7.2 Real-Time Communication	1
+7.3 Security	1
+7.4 Event-Driven Architecture	1
+8. Implementation Plan (8 Weeks)	1
+9. Future Evolution Plan	1
+9.1 Progressive Migration to Microservices (if needed)	1
+9.2 AI Integration (Roadmap)	1
+10. Final Recommendations	1
+10.1 Best Practices to Follow	1
+10.2 Points of Vigilance	1
+10.3 Success Metrics	1
+11. Conclusion	1
+Appendices	1
+A. Technical Glossary	1
+B. Team Contacts	1
+
+ 
+1. Executive Summary
+This document presents the recommended software architecture for the EAGLE project (Electronic Assistance for Global Liaison in Emergency), a PWA medical teleconsultation application designed for the clinic network in Cameroon.
+1.1 Primary Recommendation
+Modular Monolith Architecture combined with Clean Architecture and Event-Driven patterns for critical modules.
+1.2 Justification
+•	Adapted to a team of 6 developers with an 8-week deadline
+•	Optimal performance for PWA with offline mode
+•	Data consistency critical for medical domain
+•	Progressive scalability towards microservices if needed
+•	Controlled infrastructure costs
+ 
+2. EAGLE Project Context
+2.1 Objectives
+•	Teleconsultation system for clinic network in Cameroon
+•	Emergency management with multi-level validation
+•	Offline mode with automatic synchronization
+•	Real-time communication between actors (doctors, nurses, secretaries)
+2.2 Technical Constraints
+•	PWA (Progressive Web App) application
+•	Unstable 3G/4G connection (audio/video adaptation)
+•	Team of 6 developers, 8-week deadline
+•	Medical data security (GDPR/DPA)
+•	Support for 5 distinct user roles
+2.3 Main Modules
+•	Authentication and user management
+•	Emergency management (triage and validation)
+•	Video teleconsultation (WebRTC)
+•	Real-time communication (messaging, notifications)
+•	Offline synchronization
+•	Prescription and medical document management
+ 
+3. Recommended Architecture: Modular Monolith
+3.1 Overview
+The Modular Monolith architecture combines the advantages of a monolith (simplicity, consistency) with microservices modularity (separation of concerns, scalability).
+General Structure
+Frontend PWA (React/TypeScript) ↔ API Gateway ↔ Backend Modules ↔ PostgreSQL + Redis
+3.2 Backend Modules
+Module	Responsibilities
+Auth	JWT authentication, RBAC, session management
+Users	CRUD users, roles, permissions
+Urgencies	Emergency declaration, multi-level validation workflow
+Consultations	WebRTC teleconsultation, prescriptions, EHR
+Communications	Real-time messaging, Socket.io notifications
+Offline Sync	Synchronization queue, conflict resolution
+ 
+4. Clean Architecture per Module
+Each module follows Clean Architecture principles with 4 distinct layers:
+Layer	Responsibilities
+Domain	Entities, Value Objects, Events, Repository Interfaces
+Pure business logic, infrastructure-independent
+Application	Use Cases, DTOs, Validators
+Business logic orchestration
+Infrastructure	Prisma Repositories, WebRTC Services, PDF, Socket.io
+Concrete implementations, data access
+Presentation	Controllers, Routes, Middleware
+REST API interface, HTTP request handling
+4.1 Example: Consultations Module Structure
+modules/consultations/ ├── domain/ │   ├── entities/ (Consultation, Prescription) │   ├── value-objects/ (ConsultationStatus, WebRTCConfig) │   ├── events/ (ConsultationStarted, ConsultationCompleted) │   └── repositories/ (IConsultationRepository) ├── application/ │   ├── use-cases/ (StartConsultation, EndConsultation) │   └── dto/ (StartConsultationDTO, ConsultationResponseDTO) ├── infrastructure/ │   ├── prisma/ (PrismaConsultationRepository) │   ├── webrtc/ (WebRTCService, SignalingServer) │   └── pdf/ (PrescriptionPDFGenerator) └── presentation/     ├── controllers/ (ConsultationController)     └── routes/ (consultation.routes.ts)
+ 
+5. Architecture Comparison
+Criteria	Modular Monolith	Microservices	Classic Monolith
+Initial complexity	⭐⭐⭐ Medium	⭐ High	⭐⭐⭐⭐⭐ Low
+Scalability	⭐⭐⭐⭐ Good	⭐⭐⭐⭐⭐ Excellent	⭐⭐ Limited
+PWA Performance	⭐⭐⭐⭐⭐ Excellent	⭐⭐⭐ Good	⭐⭐⭐⭐ Very good
+Offline mode	⭐⭐⭐⭐⭐ Excellent	⭐⭐⭐ Complex	⭐⭐⭐⭐ Good
+Infrastructure cost	⭐⭐⭐⭐ Low	⭐⭐ High	⭐⭐⭐⭐⭐ Very low
+6-dev team	⭐⭐⭐⭐⭐ Perfect	⭐⭐ Difficult	⭐⭐⭐⭐ Good
+Conclusion: Modular Monolith offers the best trade-off for EAGLE given the constraints.
+ 
+6. Technology Stack
+6.1 Frontend
+•	React 18.3+ with TypeScript
+•	Vite for build and development
+•	Tailwind CSS for styling
+•	Socket.io-client for real-time
+•	Service Worker + IndexedDB for offline mode
+6.2 Backend
+•	Node.js v20+ with Express.js
+•	TypeScript for type safety
+•	Prisma ORM for data access
+•	Socket.io for WebSockets
+•	JWT for authentication
+6.3 Database
+•	PostgreSQL 15+ (main data)
+•	Redis (cache, sessions, queues)
+6.4 Teleconsultation
+•	Native WebRTC (preferred option)
+•	Twilio Video API (fallback)
+•	STUN/TURN servers for NAT traversal
+6.5 Infrastructure
+•	Docker for containerization
+•	Nginx for reverse proxy
+•	GitHub Actions for CI/CD
+•	Prometheus + Grafana for monitoring
+ 
+7. Key Technical Decisions
+7.1 Offline Mode Management
+Strategy: Service Worker + IndexedDB + Synchronization Queue
+1.	Cache API responses for offline consultation
+2.	Local queue for mutations (creations, modifications)
+3.	Automatic synchronization upon reconnection
+4.	Conflict resolution: last-write-wins with timestamps
+7.2 Real-Time Communication
+Socket.io for bi-directional event-based communication
+•	Instant push notifications
+•	Real-time messaging
+•	Live dashboard updates
+•	Presence status and typing indicators
+7.3 Security
+Authentication	JWT with refresh tokens (Access: 15min, Refresh: 7 days)
+Authorization	RBAC (Role-Based Access Control) with 5 defined roles
+Passwords	Bcrypt with cost factor 12
+Encryption	HTTPS mandatory (TLS), AES-256 for sensitive data
+Protection	CSRF tokens, Rate limiting, Input validation
+Audit	Complete logs of all sensitive actions
+7.4 Event-Driven Architecture
+Internal Event Bus for inter-module communication
+Event examples: - UrgencyCreated → Principal secretary notification - UrgencyValidated → Automatic consultation creation - ConsultationStarted → Nurse notification - ConsultationCompleted → Report generation - PrescriptionCreated → Patient email
+ 
+8. Implementation Plan (8 Weeks)
+Week	Focus	Deliverables
+W1	Infrastructure	Git repo, Docker, PostgreSQL, Nginx SSL
+W2	Auth & Users	JWT auth, CRUD users, RBAC, Login page
+W3	Urgencies	Multi-level validation workflow, role interfaces
+W4	Teleconsultation	WebRTC, Signaling Server, Video interface
+W5	Post-Consultation	PDF prescriptions, EHR, Follow-ups
+W6	Communication	Socket.io messaging, Push notifications
+W7	Tests & Security	E2E tests, Security audit, Optimizations
+W8	Deployment	Documentation, Training, Production
+ 
+9. Future Evolution Plan
+9.1 Progressive Migration to Microservices (if needed)
+Phase	Action
+Year 1	Modular Monolith - Consolidation and stabilization
+Year 2	Extract Video module as microservice (if high load)
+Year 3+	Progressive migration of Urgencies and Consultations if needed
+9.2 AI Integration (Roadmap)
+•	Phase 1 (Months 3-4): AI for automatic emergency triage
+•	Phase 2 (Months 5-6): Diagnostic assistant for doctors
+•	Phase 3 (Months 7-9): Pre-consultation chatbot + Schedule optimization
+•	Phase 4 (Months 10-12): Predictive analysis (patient flow, resources)
+Note: Current architecture prepared for AI with Feature Flags and Strategy Pattern
+ 
+10. Final Recommendations
+10.1 Best Practices to Follow
+1.	Strict architectural discipline
+Maintain module isolation, avoid inter-module coupling
+2.	Systematic code review
+All PRs must be reviewed before merge, respect conventions
+3.	Automated testing
+Goal: 80%+ code coverage, E2E tests for critical workflows
+4.	Continuous documentation
+Document as you go, not at project end
+5.	Monitoring from day one
+Set up logs, metrics and alerts from the first weeks
+10.2 Points of Vigilance
+•	Avoid tight coupling between modules
+•	Don't skip tests to save time
+•	Security from the start (not after)
+•	Offline mode performance: test regularly
+10.3 Success Metrics
+Metric	Target	Measurement
+API Performance	< 200ms (p95)	Prometheus
+Availability	99.5%	Uptime monitoring
+Video quality	90% no interruption	WebRTC stats
+Test coverage	80%+	Jest/Playwright
+Vulnerabilities	0 critical	Security audit
+ 
+11. Conclusion
+The Modular Monolith architecture combined with Clean Architecture and Event-Driven represents the best choice for EAGLE given:
+•	Team size (6 developers)
+•	Delivery deadline (8 weeks)
+•	PWA and offline mode constraints
+•	Medical data criticality
+•	Limited infrastructure budget
+This architecture offers:
+6.	Development and deployment simplicity
+7.	Optimal performance for PWA
+8.	Critical data consistency
+9.	Progressive scalability to microservices
+10.	Preparation for future AI integration
+The EAGLE team has all the keys to deliver a world-class teleconsultation system.
+Good luck to the entire team! 🚀
+ 
+Appendices
+A. Technical Glossary
+API	Application Programming Interface
+CRUD	Create, Read, Update, Delete
+EHR	Electronic Health Record
+JWT	JSON Web Token
+ORM	Object-Relational Mapping
+PWA	Progressive Web App
+RBAC	Role-Based Access Control
+WebRTC	Web Real-Time Communication
+B. Team Contacts
+Name	Role	Email
+Ryan	Project Manager / System Admin	ryan@eagle-project.com
+Bryan	Lead Backend	bryan@eagle-project.com
+Joel	Frontend Developer	joel@eagle-project.com
+Pelayah	Frontend Developer	pelayah@eagle-project.com
+Draco	Backend Developer	draco@eagle-project.com
+Yvan	Fullstack Developer	yvan@eagle-project.com
+--- END OF REPORT ---

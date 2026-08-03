@@ -1,0 +1,311 @@
+
+> backend@0.0.1 test
+> jest vitals-processing.service.spec|preparations.service.spec|preparations.controller.spec|patients.service.spec --coverage --coveragePathIgnorePatterns=node_modules
+
+PASS src/common/services/vitals-processing.service.spec.ts (5.747 s)
+(node:6740) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS src/modules/preparations/preparations.service.spec.ts (6.723 s)
+(node:19952) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS src/modules/patients/patients.service.spec.ts (7.16 s)
+(node:180) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS src/modules/preparations/preparations.controller.spec.ts (8.059 s)
+-------------------------------------|---------|----------|---------|---------|---------------------------
+File                                 | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s         
+-------------------------------------|---------|----------|---------|---------|---------------------------
+All files                            |    6.79 |     7.91 |     5.1 |    6.67 |                           
+ src                                 |       0 |        0 |       0 |       0 |                           
+  app.controller.ts                  |       0 |        0 |       0 |       0 | 1-10                      
+  app.module.ts                      |       0 |      100 |     100 |       0 | 1-86                      
+  app.service.ts                     |       0 |      100 |       0 |       0 | 1-6                       
+  main.ts                            |       0 |        0 |       0 |       0 | 1-91                      
+ src/common/decorators               |   63.63 |      100 |      50 |   55.55 |                           
+  current-user.decorator.ts          |      50 |      100 |       0 |      50 | 6-7                       
+  index.ts                           |       0 |      100 |     100 |       0 | 1-2                       
+  roles.decorator.ts                 |     100 |      100 |     100 |     100 |                           
+ src/common/events                   |       0 |      100 |     100 |       0 |                           
+  events.module.ts                   |       0 |      100 |     100 |       0 | 1-18                      
+ src/common/events/events            |       0 |      100 |       0 |       0 |                           
+  consultation.events.ts             |       0 |      100 |       0 |       0 | 1-22                      
+  followup.events.ts                 |       0 |      100 |       0 |       0 | 1-6                       
+  index.ts                           |       0 |      100 |     100 |       0 | 1-5                       
+  patient.events.ts                  |       0 |      100 |       0 |       0 | 1-4                       
+  prescription.events.ts             |       0 |      100 |       0 |       0 | 1-6                       
+  urgency.events.ts                  |       0 |      100 |       0 |       0 | 1-29                      
+ src/common/events/listeners         |       0 |        0 |       0 |       0 |                           
+  notification.listener.ts           |       0 |        0 |       0 |       0 | 1-354                     
+ src/common/guards                   |   35.29 |    21.42 |      25 |   29.62 |                           
+  csrf.guard.ts                      |       0 |        0 |       0 |       0 | 1-33                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1-2                       
+  jwt-auth.guard.ts                  |     100 |      100 |     100 |     100 |                           
+  roles.guard.ts                     |   46.66 |     37.5 |   33.33 |   41.66 | 11-26                     
+ src/common/repositories             |   10.63 |       25 |       0 |    7.69 |                           
+  base.repository.ts                 |   10.63 |       25 |       0 |    7.69 | 10-128                    
+ src/common/services                 |   23.88 |    46.73 |   20.83 |   23.46 |                           
+  audit.module.ts                    |       0 |      100 |     100 |       0 | 1-11                      
+  audit.service.ts                   |       0 |        0 |       0 |       0 | 1-124                     
+  encryption.module.ts               |       0 |      100 |     100 |       0 | 1-11                      
+  encryption.service.ts              |   14.28 |    18.75 |       0 |   10.52 | 7-89                      
+  pdf.module.ts                      |       0 |      100 |     100 |       0 | 1-11                      
+  pdf.service.ts                     |       0 |        0 |       0 |       0 | 1-248                     
+  sms.module.ts                      |       0 |      100 |     100 |       0 | 1-11                      
+  sms.service.ts                     |       0 |        0 |       0 |       0 | 1-165                     
+  vitals-processing.service.ts       |    95.5 |    88.29 |     100 |   95.23 | 56,107,134,161            
+ src/config/firebase                 |      56 |       50 |       0 |   47.61 |                           
+  firebase.module.ts                 |     100 |      100 |     100 |     100 |                           
+  firebase.service.ts                |   35.29 |       50 |       0 |   26.66 | 9-49                      
+  index.ts                           |     100 |      100 |     100 |     100 |                           
+ src/database/seeds                  |       0 |        0 |       0 |       0 |                           
+  reset-admin.ts                     |       0 |        0 |       0 |       0 | 1-132                     
+  seed-admin.ts                      |       0 |        0 |       0 |       0 | 1-123                     
+  seed-all.ts                        |       0 |        0 |       0 |       0 | 1-231                     
+  seed-auth-roles.ts                 |       0 |        0 |       0 |       0 | 1-247                     
+  seed-hospitals.ts                  |       0 |        0 |       0 |       0 | 1-114                     
+  test-auth.ts                       |       0 |        0 |       0 |       0 | 7-176                     
+  test-firebase.ts                   |       0 |      100 |       0 |       0 | 1-53                      
+ src/modules/analytics               |       0 |        0 |       0 |       0 |                           
+  analytics.controller.ts            |       0 |        0 |       0 |       0 | 1-38                      
+  analytics.module.ts                |       0 |      100 |     100 |       0 | 1-12                      
+  analytics.service.ts               |       0 |        0 |       0 |       0 | 1-366                     
+ src/modules/auth                    |       0 |        0 |       0 |       0 |                           
+  auth.controller.ts                 |       0 |        0 |       0 |       0 | 1-157                     
+  auth.module.ts                     |       0 |        0 |       0 |       0 | 1-31                      
+  auth.service.ts                    |       0 |        0 |       0 |       0 | 1-297                     
+ src/modules/auth/dto                |       0 |        0 |     100 |       0 |                           
+  auth-response.dto.ts               |       0 |        0 |     100 |       0 | 1-62                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1-5                       
+  login.dto.ts                       |       0 |      100 |     100 |       0 | 1-19                      
+  refresh-token.dto.ts               |       0 |      100 |     100 |       0 | 1-10                      
+  register.dto.ts                    |       0 |        0 |     100 |       0 | 1-68                      
+  update-profile.dto.ts              |       0 |      100 |     100 |       0 | 1-21                      
+ src/modules/auth/entities           |       0 |      100 |     100 |       0 |                           
+  auth-token.entity.ts               |       0 |      100 |     100 |       0 | 13                        
+ src/modules/auth/strategies         |       0 |        0 |       0 |       0 |                           
+  jwt.strategy.ts                    |       0 |        0 |       0 |       0 | 1-53                      
+ src/modules/complaints              |       0 |        0 |       0 |       0 |                           
+  complaints.controller.ts           |       0 |        0 |       0 |       0 | 1-100                     
+  complaints.module.ts               |       0 |      100 |     100 |       0 | 1-13                      
+  complaints.repository.ts           |       0 |        0 |       0 |       0 | 1-82                      
+  complaints.service.ts              |       0 |        0 |       0 |       0 | 1-138                     
+ src/modules/complaints/dto          |       0 |        0 |     100 |       0 |                           
+  create-complaint.dto.ts            |       0 |        0 |     100 |       0 | 1-42                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1-2                       
+  update-complaint.dto.ts            |       0 |        0 |     100 |       0 | 1-34                      
+ src/modules/complaints/entities     |       0 |        0 |       0 |       0 |                           
+  complaint.entity.ts                |       0 |        0 |       0 |       0 | 1-49                      
+ src/modules/consultations           |       0 |        0 |       0 |       0 |                           
+  consultations.controller.ts        |       0 |        0 |       0 |       0 | 1-202                     
+  consultations.module.ts            |       0 |      100 |     100 |       0 | 1-15                      
+  consultations.repository.ts        |       0 |        0 |       0 |       0 | 1-83                      
+  consultations.service.ts           |       0 |        0 |       0 |       0 | 1-368                     
+ src/modules/consultations/dto       |       0 |        0 |     100 |       0 |                           
+  add-note.dto.ts                    |       0 |      100 |     100 |       0 | 1-20                      
+  complete-consultation.dto.ts       |       0 |      100 |     100 |       0 | 1-23                      
+  consultation-response.dto.ts       |       0 |        0 |     100 |       0 | 1-58                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1-3                       
+ src/modules/consultations/entities  |       0 |        0 |       0 |       0 |                           
+  consultation.entity.ts             |       0 |        0 |       0 |       0 | 1-41                      
+ src/modules/files                   |       0 |        0 |       0 |       0 |                           
+  files.controller.ts                |       0 |        0 |       0 |       0 | 1-83                      
+  files.module.ts                    |       0 |      100 |     100 |       0 | 1-13                      
+  files.repository.ts                |       0 |        0 |       0 |       0 | 1-40                      
+  files.service.ts                   |       0 |        0 |       0 |       0 | 1-124                     
+ src/modules/files/dto               |       0 |        0 |       0 |       0 |                           
+  index.ts                           |       0 |      100 |     100 |       0 | 1                         
+  upload-file.dto.ts                 |       0 |        0 |       0 |       0 | 1-22                      
+ src/modules/files/entities          |       0 |      100 |     100 |       0 |                           
+  file.entity.ts                     |       0 |      100 |     100 |       0 | 16                        
+ src/modules/followups               |       0 |        0 |       0 |       0 |                           
+  followups.controller.ts            |       0 |        0 |       0 |       0 | 1-160                     
+  followups.module.ts                |       0 |      100 |     100 |       0 | 1-13                      
+  followups.repository.ts            |       0 |        0 |       0 |       0 | 1-88                      
+  followups.service.ts               |       0 |        0 |       0 |       0 | 1-341                     
+ src/modules/followups/dto           |       0 |        0 |     100 |       0 |                           
+  create-followup.dto.ts             |       0 |        0 |     100 |       0 | 1-40                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1-2                       
+  update-followup.dto.ts             |       0 |        0 |     100 |       0 | 1-32                      
+ src/modules/followups/entities      |       0 |        0 |       0 |       0 |                           
+  followup.entity.ts                 |       0 |        0 |       0 |       0 | 1-28                      
+ src/modules/hospitals               |       0 |        0 |       0 |       0 |                           
+  hospitals.controller.ts            |       0 |        0 |       0 |       0 | 1-197                     
+  hospitals.module.ts                |       0 |      100 |     100 |       0 | 1-13                      
+  hospitals.repository.ts            |       0 |        0 |       0 |       0 | 1-66                      
+  hospitals.service.ts               |       0 |        0 |       0 |       0 | 1-114                     
+ src/modules/hospitals/dto           |       0 |        0 |     100 |       0 |                           
+  create-hospital.dto.ts             |       0 |        0 |     100 |       0 | 1-89                      
+  hospital-response.dto.ts           |       0 |        0 |     100 |       0 | 1-45                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1-3                       
+  update-hospital.dto.ts             |       0 |        0 |     100 |       0 | 1-89                      
+ src/modules/hospitals/entities      |       0 |        0 |       0 |       0 |                           
+  hospital.entity.ts                 |       0 |        0 |       0 |       0 | 1-32                      
+ src/modules/messages                |       0 |        0 |       0 |       0 |                           
+  messages.controller.ts             |       0 |        0 |       0 |       0 | 1-125                     
+  messages.gateway.ts                |       0 |        0 |       0 |       0 | 1-277                     
+  messages.module.ts                 |       0 |      100 |       0 |       0 | 1-36                      
+  messages.repository.ts             |       0 |        0 |       0 |       0 | 1-102                     
+  messages.service.ts                |       0 |        0 |       0 |       0 | 1-242                     
+  webrtc.controller.ts               |       0 |        0 |       0 |       0 | 1-105                     
+  webrtc.gateway.ts                  |       0 |        0 |       0 |       0 | 1-258                     
+  webrtc.repository.ts               |       0 |        0 |       0 |       0 | 1-43                      
+  webrtc.service.ts                  |       0 |        0 |       0 |       0 | 1-200                     
+ src/modules/messages/dto            |       0 |        0 |     100 |       0 |                           
+  create-message.dto.ts              |       0 |        0 |     100 |       0 | 1-30                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1                         
+ src/modules/messages/entities       |       0 |        0 |       0 |       0 |                           
+  message.entity.ts                  |       0 |        0 |       0 |       0 | 1-21                      
+  webrtc-room.entity.ts              |       0 |        0 |       0 |       0 | 1-29                      
+ src/modules/notifications           |       0 |        0 |       0 |       0 |                           
+  notifications.controller.ts        |       0 |        0 |       0 |       0 | 1-127                     
+  notifications.gateway.ts           |       0 |        0 |       0 |       0 | 1-141                     
+  notifications.module.ts            |       0 |      100 |       0 |       0 | 1-29                      
+  notifications.repository.ts        |       0 |        0 |       0 |       0 | 1-108                     
+  notifications.service.ts           |       0 |        0 |       0 |       0 | 1-156                     
+ src/modules/notifications/dto       |       0 |        0 |     100 |       0 |                           
+  create-notification.dto.ts         |       0 |        0 |     100 |       0 | 1-34                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1                         
+ src/modules/notifications/entities  |       0 |        0 |       0 |       0 |                           
+  notification.entity.ts             |       0 |        0 |       0 |       0 | 1-22                      
+ src/modules/patients                |   28.34 |    27.81 |    14.7 |   27.68 |                           
+  patients.controller.ts             |       0 |        0 |       0 |       0 | 1-305                     
+  patients.module.ts                 |       0 |      100 |     100 |       0 | 1-14                      
+  patients.repository.ts             |   25.92 |    16.66 |       0 |   21.73 | 9-77                      
+  patients.service.ts                |   41.07 |     38.2 |   35.71 |      40 | 35-79,102-103,115,143-317 
+ src/modules/patients/dto            |       0 |        0 |       0 |       0 |                           
+  create-patient.dto.ts              |       0 |      100 |     100 |       0 | 1-102                     
+  index.ts                           |       0 |      100 |     100 |       0 | 1-5                       
+  patient-response.dto.ts            |       0 |        0 |     100 |       0 | 1-56                      
+  update-ehr.dto.ts                  |       0 |      100 |     100 |       0 | 1-43                      
+  update-patient.dto.ts              |       0 |      100 |     100 |       0 | 1-101                     
+  update-vitals-enhanced.dto.ts      |       0 |      100 |       0 |       0 | 1-68                      
+  update-vitals.dto.ts               |       0 |        0 |       0 |       0 | 1-38                      
+  update-workflow-status.dto.ts      |       0 |      100 |     100 |       0 | 1-11                      
+  verify-identity.dto.ts             |       0 |      100 |     100 |       0 | 1-29                      
+ src/modules/patients/entities       |     100 |      100 |     100 |     100 |                           
+  patient.entity.ts                  |     100 |      100 |     100 |     100 |                           
+ src/modules/preparations            |   69.85 |       75 |   65.71 |   69.53 |                           
+  preparations.controller.ts         |     100 |       75 |     100 |     100 | 32-154                    
+  preparations.module.ts             |       0 |      100 |     100 |       0 | 1-13                      
+  preparations.repository.ts         |   16.66 |       30 |       0 |   11.76 | 11-111                    
+  preparations.service.ts            |   94.91 |    88.23 |     100 |   94.73 | 135,165,197               
+ src/modules/preparations/dto        |   93.61 |      100 |       0 |   93.61 |                           
+  add-observations.dto.ts            |    90.9 |      100 |       0 |    90.9 | 40                        
+  create-preparation.dto.ts          |     100 |      100 |     100 |     100 |                           
+  index.ts                           |     100 |      100 |     100 |     100 |                           
+  update-checklist.dto.ts            |    90.9 |      100 |       0 |    90.9 | 68,86                     
+  update-preparation-progress.dto.ts |     100 |      100 |     100 |     100 |                           
+ src/modules/preparations/entities   |     100 |      100 |     100 |     100 |                           
+  preparation.entity.ts              |     100 |      100 |     100 |     100 |                           
+ src/modules/prescriptions           |       0 |        0 |       0 |       0 |                           
+  prescriptions.controller.ts        |       0 |        0 |       0 |       0 | 1-166                     
+  prescriptions.module.ts            |       0 |      100 |     100 |       0 | 1-14                      
+  prescriptions.repository.ts        |       0 |        0 |       0 |       0 | 1-43                      
+  prescriptions.service.ts           |       0 |        0 |       0 |       0 | 1-319                     
+ src/modules/prescriptions/dto       |       0 |      100 |       0 |       0 |                           
+  create-prescription.dto.ts         |       0 |      100 |       0 |       0 | 1-62                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1-2                       
+  update-prescription.dto.ts         |       0 |      100 |       0 |       0 | 1-31                      
+ src/modules/prescriptions/entities  |       0 |      100 |     100 |       0 |                           
+  prescription.entity.ts             |       0 |      100 |     100 |       0 | 33                        
+ src/modules/queue                   |       0 |        0 |       0 |       0 |                           
+  queue.controller.ts                |       0 |        0 |       0 |       0 | 1-144                     
+  queue.module.ts                    |       0 |      100 |     100 |       0 | 1-13                      
+  queue.repository.ts                |       0 |        0 |       0 |       0 | 1-75                      
+  queue.service.ts                   |       0 |        0 |       0 |       0 | 1-527                     
+ src/modules/queue/dto               |       0 |        0 |     100 |       0 |                           
+  add-to-queue.dto.ts                |       0 |      100 |     100 |       0 | 1-28                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1-2                       
+  update-queue-status.dto.ts         |       0 |        0 |     100 |       0 | 1-16                      
+ src/modules/queue/entities          |       0 |        0 |       0 |       0 |                           
+  queue.entity.ts                    |       0 |        0 |       0 |       0 | 1-34                      
+ src/modules/reports                 |       0 |        0 |       0 |       0 |                           
+  reports.controller.ts              |       0 |        0 |       0 |       0 | 1-102                     
+  reports.module.ts                  |       0 |      100 |     100 |       0 | 1-13                      
+  reports.repository.ts              |       0 |        0 |       0 |       0 | 1-62                      
+  reports.service.ts                 |       0 |        0 |       0 |       0 | 1-133                     
+ src/modules/reports/dto             |       0 |        0 |     100 |       0 |                           
+  create-report.dto.ts               |       0 |        0 |     100 |       0 | 1-38                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1-2                       
+  update-report.dto.ts               |       0 |        0 |     100 |       0 | 1-30                      
+ src/modules/reports/entities        |       0 |        0 |       0 |       0 |                           
+  report.entity.ts                   |       0 |        0 |       0 |       0 | 1-41                      
+ src/modules/rules                   |       0 |        0 |       0 |       0 |                           
+  rules.controller.ts                |       0 |        0 |       0 |       0 | 1-171                     
+  rules.module.ts                    |       0 |      100 |     100 |       0 | 1-11                      
+  rules.repository.ts                |       0 |        0 |       0 |       0 | 1-37                      
+  rules.service.ts                   |       0 |        0 |       0 |       0 | 1-95                      
+ src/modules/rules/dto               |       0 |        0 |     100 |       0 |                           
+  create-rule.dto.ts                 |       0 |        0 |     100 |       0 | 1-35                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1-2                       
+  update-rule.dto.ts                 |       0 |      100 |     100 |       0 | 1-10                      
+ src/modules/rules/entities          |       0 |        0 |       0 |       0 |                           
+  rule.entity.ts                     |       0 |        0 |       0 |       0 | 3-38                      
+ src/modules/specialties             |       0 |        0 |       0 |       0 |                           
+  specialties.controller.ts          |       0 |        0 |       0 |       0 | 1-114                     
+  specialties.module.ts              |       0 |      100 |     100 |       0 | 1-13                      
+  specialties.repository.ts          |       0 |        0 |       0 |       0 | 1-43                      
+  specialties.service.ts             |       0 |        0 |       0 |       0 | 1-152                     
+ src/modules/specialties/dto         |       0 |      100 |     100 |       0 |                           
+  create-specialty.dto.ts            |       0 |      100 |     100 |       0 | 1-29                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1-2                       
+  update-specialty.dto.ts            |       0 |      100 |     100 |       0 | 1-33                      
+ src/modules/specialties/entities    |       0 |      100 |     100 |       0 |                           
+  specialty.entity.ts                |       0 |      100 |     100 |       0 | 12                        
+ src/modules/sync                    |       0 |        0 |       0 |       0 |                           
+  sync.controller.ts                 |       0 |        0 |       0 |       0 | 1-44                      
+  sync.module.ts                     |       0 |      100 |     100 |       0 | 1-12                      
+  sync.service.ts                    |       0 |        0 |       0 |       0 | 1-261                     
+ src/modules/sync/entities           |       0 |        0 |       0 |       0 |                           
+  sync-operation.entity.ts           |       0 |        0 |       0 |       0 | 1-31                      
+ src/modules/system                  |       0 |        0 |       0 |       0 |                           
+  system.controller.ts               |       0 |        0 |       0 |       0 | 1-88                      
+  system.module.ts                   |       0 |      100 |     100 |       0 | 1-13                      
+  system.repository.ts               |       0 |        0 |       0 |       0 | 1-87                      
+  system.service.ts                  |       0 |        0 |       0 |       0 | 1-145                     
+ src/modules/system/dto              |       0 |      100 |       0 |       0 |                           
+  index.ts                           |       0 |      100 |     100 |       0 | 1                         
+  update-system-settings.dto.ts      |       0 |      100 |       0 |       0 | 1-178                     
+ src/modules/system/entities         |       0 |      100 |     100 |       0 |                           
+  system-settings.entity.ts          |       0 |      100 |     100 |       0 | 63                        
+ src/modules/tickets                 |       0 |        0 |       0 |       0 |                           
+  tickets.controller.ts              |       0 |        0 |       0 |       0 | 1-93                      
+  tickets.module.ts                  |       0 |      100 |     100 |       0 | 1-13                      
+  tickets.repository.ts              |       0 |        0 |       0 |       0 | 1-70                      
+  tickets.service.ts                 |       0 |        0 |       0 |       0 | 1-229                     
+ src/modules/tickets/dto             |       0 |      100 |     100 |       0 |                           
+  create-ticket.dto.ts               |       0 |      100 |     100 |       0 | 1-9                       
+  index.ts                           |       0 |      100 |     100 |       0 | 1                         
+ src/modules/tickets/entities        |       0 |        0 |       0 |       0 |                           
+  ticket.entity.ts                   |       0 |        0 |       0 |       0 | 16-25                     
+ src/modules/urgencies               |       0 |        0 |       0 |       0 |                           
+  urgencies.controller.ts            |       0 |        0 |       0 |       0 | 1-190                     
+  urgencies.module.ts                |       0 |      100 |     100 |       0 | 1-23                      
+  urgencies.repository.ts            |       0 |        0 |       0 |       0 | 1-117                     
+  urgencies.service.ts               |       0 |        0 |       0 |       0 | 1-449                     
+ src/modules/urgencies/dto           |       0 |        0 |     100 |       0 |                           
+  assign-urgency.dto.ts              |       0 |      100 |     100 |       0 | 1-14                      
+  create-urgency.dto.ts              |       0 |        0 |     100 |       0 | 1-46                      
+  index.ts                           |       0 |      100 |     100 |       0 | 1-5                       
+  reject-urgency.dto.ts              |       0 |      100 |     100 |       0 | 1-13                      
+  update-vitals.dto.ts               |       0 |        0 |     100 |       0 | 1-9                       
+  validate-urgency.dto.ts            |       0 |        0 |     100 |       0 | 1-19                      
+ src/modules/urgencies/entities      |       0 |        0 |       0 |       0 |                           
+  urgency.entity.ts                  |       0 |        0 |       0 |       0 | 1-52                      
+ src/modules/users                   |       0 |        0 |       0 |       0 |                           
+  users.controller.ts                |       0 |        0 |       0 |       0 | 1-166                     
+  users.module.ts                    |       0 |      100 |     100 |       0 | 1-13                      
+  users.repository.ts                |       0 |        0 |       0 |       0 | 1-77                      
+  users.service.ts                   |       0 |        0 |       0 |       0 | 1-122                     
+ src/modules/users/dto               |       0 |        0 |     100 |       0 |                           
+  index.ts                           |       0 |      100 |     100 |       0 | 1                         
+  update-user.dto.ts                 |       0 |        0 |     100 |       0 | 1-73                      
+ src/modules/users/entities          |     100 |      100 |     100 |     100 |                           
+  user.entity.ts                     |     100 |      100 |     100 |     100 |                           
+-------------------------------------|---------|----------|---------|---------|---------------------------
+
+Test Suites: 4 passed, 4 total
+Tests:       120 passed, 120 total
+Snapshots:   0 total
+Time:        27.726 s
+Ran all test suites matching vitals-processing.service.spec|preparations.service.spec|preparations.controller.spec|patients.service.spec.
